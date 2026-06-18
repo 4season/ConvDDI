@@ -31,15 +31,12 @@ import torch
 from torchvision import transforms
 from PIL import Image
 
-# ────────────────────────── 경로 설정 ─────────────────────────────
 SCRIPT_DIR   = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 CLASS_MAP_PATH   = PROJECT_ROOT / "data" / "class_map.json"
 CONTRAIND_PATH   = PROJECT_ROOT / "data" / "contraindicated_drugs.xlsx"
 DEFAULT_CKPT     = PROJECT_ROOT / "output" / "checkpoints" / "best_model.pth"
 
-
-# ─────────────────────── 클래스 맵 & DB 로드 ──────────────────────
 
 def load_class_map() -> dict:
     """
@@ -86,8 +83,6 @@ def load_contraindicated_db() -> list[dict]:
     return pairs
 
 
-# ──────────────────── 성분 매칭 (substring) ───────────────────────
-
 def ingredient_matches(excel_inn: str, drug_ingredients: list[str]) -> bool:
     """Excel INN이 약물 성분명의 substring인지 확인 (짧은 INN은 정확 일치)"""
     for ing in drug_ingredients:
@@ -111,7 +106,6 @@ def check_contraindications(
     """
     warnings = []
 
-    # 각 약물의 성분 리스트 미리 계산
     drug_ingredients = [
         (d, extract_ingredients(d.get("material_en", "")))
         for d in drug_list
@@ -135,8 +129,6 @@ def check_contraindications(
                     })
     return warnings
 
-
-# ─────────────────────── 추론 파이프라인 ──────────────────────────
 
 def load_model(ckpt_path: Path, num_classes: int, device: torch.device):
     """저장된 체크포인트에서 모델 복원"""
@@ -165,7 +157,7 @@ def preprocess_image(img_path: Path) -> torch.Tensor:
                              [0.229, 0.224, 0.225]),
     ])
     img = Image.open(img_path).convert("RGB")
-    return transform(img).unsqueeze(0)   # (1, 3, 128, 128)
+    return transform(img).unsqueeze(0)
 
 
 def crop_from_annotation(photo_path: Path, json_path: Path) -> list[tuple[Image.Image, dict]]:
@@ -233,8 +225,6 @@ def predict_images(
     return results
 
 
-# ─────────────────────────── 출력 ────────────────────────────────
-
 def print_results(predictions: list[dict], warnings: list[dict]) -> None:
     print("\n" + "=" * 60)
     print("  [결과] 인식된 약물")
@@ -262,19 +252,15 @@ def print_results(predictions: list[dict], warnings: list[dict]) -> None:
     print("=" * 60 + "\n")
 
 
-# ──────────────────────────── 메인 ───────────────────────────────
-
 def main(args: argparse.Namespace) -> None:
     device    = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     class_map = load_class_map()
     db        = load_contraindicated_db()
     model     = load_model(Path(args.checkpoint), len(class_map), device)
 
-    # 추론할 이미지 수집
     if args.images:
         image_paths = [Path(p) for p in args.images]
     elif args.photo and args.json:
-        # 복합 사진 → 크롭 후 임시 저장
         import tempfile, os
         crops = crop_from_annotation(Path(args.photo), Path(args.json))
         tmpdir = Path(tempfile.mkdtemp())
@@ -288,17 +274,10 @@ def main(args: argparse.Namespace) -> None:
         print("[오류] --images 또는 --photo + --json 를 지정해주세요.")
         sys.exit(1)
 
-    # 추론
     predictions = predict_images(image_paths, model, class_map, device)
-
-    # 병용금기 체크
     warnings = check_contraindications(predictions, db)
-
-    # 출력
     print_results(predictions, warnings)
 
-
-# ────────────────────────── CLI ──────────────────────────────────
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description="DrugCNN Inference + Contraindication Check")

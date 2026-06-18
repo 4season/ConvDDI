@@ -26,11 +26,8 @@ from PIL import Image
 import torchvision.transforms as T
 import matplotlib.pyplot as plt
 
-# 같은 폴더의 모델 정의 재사용
 import importlib.util
 
-
-# ──────────────── 모델 정의 로드 (2_model.py 재사용) ────────────────
 
 def load_model_def(model_py: Path):
     """2_model.py에서 DrugCNN 클래스를 동적으로 임포트."""
@@ -40,19 +37,15 @@ def load_model_def(model_py: Path):
     return mod.DrugCNN
 
 
-# ──────────────── 전처리 (학습과 동일하게 맞춤) ────────────────────
-
 IMAGENET_MEAN = [0.485, 0.456, 0.406]
 IMAGENET_STD = [0.229, 0.224, 0.225]
 
 preprocess = T.Compose([
-    T.Resize((128, 128)),                 # 학습 입력 해상도와 동일
+    T.Resize((128, 128)),
     T.ToTensor(),
     T.Normalize(IMAGENET_MEAN, IMAGENET_STD),
 ])
 
-
-# ──────────────── feature map 수집 (forward hook) ─────────────────
 
 def collect_feature_maps(model: nn.Module, x: torch.Tensor):
     """
@@ -80,15 +73,13 @@ def collect_feature_maps(model: nn.Module, x: torch.Tensor):
     return captured
 
 
-# ──────────────── 시각화 ──────────────────────────────────────────
-
 def plot_block(block_idx: int, fmap: torch.Tensor, out_dir: Path,
                max_channels: int = 16):
     """
     한 블록의 앞쪽 max_channels개 채널을 격자로 저장.
     fmap: (1, C, H, W)
     """
-    fmap = fmap[0]                      # (C, H, W)
+    fmap = fmap[0]
     n = min(max_channels, fmap.size(0))
     cols = 4
     rows = (n + cols - 1) // cols
@@ -98,7 +89,6 @@ def plot_block(block_idx: int, fmap: torch.Tensor, out_dir: Path,
 
     for c in range(n):
         ch = fmap[c]
-        # 채널별 min-max 정규화 후 표시 (대비 확보)
         ch = (ch - ch.min()) / (ch.max() - ch.min() + 1e-8)
         axes[c].imshow(ch, cmap="viridis")
         axes[c].set_title(f"ch {c}", fontsize=8)
@@ -118,11 +108,7 @@ def plot_block(block_idx: int, fmap: torch.Tensor, out_dir: Path,
     print(f"  저장: {save_path}")
 
 
-# ──────────────── 메인 ────────────────────────────────────────────
-
 def main():
-    # 실행 위치(cwd)와 무관하게 동작하도록, 기본 경로는 "프로젝트 루트" 기준으로 잡는다.
-    # 이 파일이 <root>/src/6_feature_maps.py 이므로 부모의 부모가 프로젝트 루트.
     ROOT = Path(__file__).resolve().parent.parent
 
     ap = argparse.ArgumentParser()
@@ -140,13 +126,10 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"[device] {device}")
 
-    # 1) 모델 로드
     DrugCNN = load_model_def(Path(args.model_py))
     model = DrugCNN(num_classes=args.num_classes).to(device)
 
     ckpt = torch.load(args.ckpt, map_location=device)
-    # 3_train.py는 {"epoch":.., "model_state": state_dict, ..} 형태로 저장.
-    # 순수 state_dict로 저장된 경우도 함께 처리.
     if isinstance(ckpt, dict) and "model_state" in ckpt:
         state = ckpt["model_state"]
     elif isinstance(ckpt, dict) and "state_dict" in ckpt:
@@ -156,7 +139,6 @@ def main():
     model.load_state_dict(state)
     print(f"[model] 가중치 로드 완료: {args.ckpt}")
 
-    # 2) 이미지 선택 (생략 시 자동)
     image_path = args.image
     if image_path is None:
         candidates = sorted(Path(args.data_dir).rglob("*.png"))
@@ -166,23 +148,19 @@ def main():
         image_path = str(candidates[0])
         print(f"[auto] --image 미지정 → 자동 선택: {image_path}")
 
-    # 3) 이미지 전처리
     img = Image.open(image_path).convert("RGB")
-    x = preprocess(img).unsqueeze(0).to(device)   # (1, 3, 128, 128)
+    x = preprocess(img).unsqueeze(0).to(device)
     print(f"[input] {image_path}  →  tensor {tuple(x.shape)}")
 
-    # 3) feature map 수집 + 저장
     out_dir = Path(args.out)
     captured = collect_feature_maps(model, x)
     for block_idx, fmap in captured:
         plot_block(block_idx, fmap, out_dir, max_channels=args.max_channels)
 
-    # 4) 원본도 함께 저장(비교용)
     out_dir.mkdir(parents=True, exist_ok=True)
     img.resize((128, 128)).save(out_dir / "input_resized.png")
     print(f"  저장: {out_dir / 'input_resized.png'}")
 
-    # 5) 예측 결과 출력(확인용)
     model.eval()
     with torch.no_grad():
         probs = model.predict_proba(x)[0]

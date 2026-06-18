@@ -18,8 +18,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-# ──────────────── 클래스별 가중치 (inverse frequency) ────────────────
-
 def compute_class_weights(labels: list[int], num_classes: int) -> torch.Tensor:
     """
     클래스 빈도의 역수를 정규화해 가중치 벡터를 만든다.
@@ -37,8 +35,6 @@ def compute_class_weights(labels: list[int], num_classes: int) -> torch.Tensor:
     return weights
 
 
-# ──────────────── Oversampling 용 샘플 가중치 ────────────────
-
 def make_sample_weights(labels: list[int], num_classes: int) -> torch.Tensor:
     """
     WeightedRandomSampler 에 넣을 '샘플별' 가중치.
@@ -50,8 +46,6 @@ def make_sample_weights(labels: list[int], num_classes: int) -> torch.Tensor:
         [1.0 / counts[c] for c in labels], dtype=torch.float32
     )
 
-
-# ──────────────────────── Focal Loss ────────────────────────
 
 class FocalLoss(nn.Module):
     """
@@ -69,7 +63,6 @@ class FocalLoss(nn.Module):
         self.register_buffer("alpha", alpha if alpha is not None else None)
 
     def forward(self, logits: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
-        # log p_t : 정답 클래스의 로그확률
         log_prob = F.log_softmax(logits, dim=1)
         log_pt = log_prob.gather(1, target.unsqueeze(1)).squeeze(1)
         pt = log_pt.exp()
@@ -82,8 +75,6 @@ class FocalLoss(nn.Module):
 
         return focal.mean()
 
-
-# ──────────────────────── 손실/샘플러 빌더 ────────────────────────
 
 def build_criterion(
     method: str,

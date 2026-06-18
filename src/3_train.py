@@ -43,12 +43,13 @@ from torch.utils.data import DataLoader, Dataset, Subset, WeightedRandomSampler
 from torchvision import transforms
 from PIL import Image
 
-# 파일명이 2_model.py / imbalance.py → importlib 동적 로드
+
 def _load(mod_name: str, file_name: str):
     spec = _ilu.spec_from_file_location(mod_name, Path(__file__).parent / file_name)
     mod = _ilu.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
+
 
 _model_mod = _load("model_2", "2_model.py")
 _imb       = _load("imbalance", "imbalance.py")
@@ -56,7 +57,6 @@ DrugCNN          = _model_mod.DrugCNN
 build_criterion  = _imb.build_criterion
 make_sample_weights = _imb.make_sample_weights
 
-# ──────────── 경로 ────────────
 SCRIPT_DIR   = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 CROPPED_DIR  = PROJECT_ROOT / "data" / "cropped"
@@ -65,14 +65,11 @@ CLASS_MAP    = PROJECT_ROOT / "data" / "class_map.json"
 CKPT_DIR     = PROJECT_ROOT / "output" / "checkpoints"
 PLOT_PATH    = PROJECT_ROOT / "output" / "loss_curve.png"
 
-# ──────────── 기본 하이퍼파라미터 ────────────
 DEFAULTS = dict(
     lr=1e-3, batch=128, dropout=0.5, epochs=80, patience=8,
     classes=100, seed=42, loss="weighted", sampler="none", gamma=2.0,
 )
 
-
-# ─────────────────────── Dataset ────────────────────────────────
 
 class SplitDataset(Dataset):
     """
@@ -108,8 +105,6 @@ class SplitDataset(Dataset):
         return img, label
 
 
-# ──────────────────── 데이터 변환 ────────────────────────────────
-
 def get_transforms(is_train: bool) -> transforms.Compose:
     mean = [0.485, 0.456, 0.406]
     std  = [0.229, 0.224, 0.225]
@@ -128,8 +123,6 @@ def get_transforms(is_train: bool) -> transforms.Compose:
         transforms.Normalize(mean, std),
     ])
 
-
-# ──────────────────── 학습/검증 루프 ─────────────────────────────
 
 def train_one_epoch(model, loader, criterion, optimizer, device):
     model.train()
@@ -161,8 +154,6 @@ def evaluate(model, loader, criterion, device):
     return total_loss / total, total_correct / total
 
 
-# ──────────────────── 학습 곡선 저장 ─────────────────────────────
-
 def save_loss_curve(history: dict, save_path: Path) -> None:
     try:
         import matplotlib
@@ -189,8 +180,6 @@ def save_loss_curve(history: dict, save_path: Path) -> None:
     print(f"[학습] 학습 곡선 저장: {save_path}")
 
 
-# ──────────────────────── 메인 ───────────────────────────────────
-
 def main(args: argparse.Namespace) -> None:
     torch.manual_seed(args.seed)
     random.seed(args.seed)
@@ -200,7 +189,6 @@ def main(args: argparse.Namespace) -> None:
     if device.type == "cuda":
         print(f"[학습] GPU: {torch.cuda.get_device_name(0)}")
 
-    # ── 분할 로드 ──
     if not SPLITS_PATH.exists():
         raise FileNotFoundError(
             f"{SPLITS_PATH} 가 없습니다. 먼저 `python src/0_split.py` 를 실행하세요."
@@ -210,8 +198,7 @@ def main(args: argparse.Namespace) -> None:
           f"val {len(splits['val']):,} / test {len(splits['test']):,} "
           f"(seed={splits['meta']['seed']})")
 
-    # ── 데이터셋 (train/val 만) ──
-    use_cache = (device.type == "cuda")  # GPU면 RAM 캐시로 I/O 제거
+    use_cache = (device.type == "cuda")
     train_set = SplitDataset(splits["train"], CROPPED_DIR,
                              get_transforms(True),  args.classes, cache=use_cache)
     val_set   = SplitDataset(splits["val"],   CROPPED_DIR,
@@ -219,7 +206,6 @@ def main(args: argparse.Namespace) -> None:
     print(f"[학습] 학습 {len(train_set):,}장 | 검증 {len(val_set):,}장 "
           f"(클래스 {args.classes}개)")
 
-    # ── 불균형 대응: 샘플러 ──
     num_workers = 4 if device.type == "cuda" else 0
     if args.sampler == "weighted":
         w = make_sample_weights(train_set.labels, args.classes)
@@ -236,22 +222,18 @@ def main(args: argparse.Namespace) -> None:
                             num_workers=num_workers,
                             pin_memory=(device.type == "cuda"))
 
-    # ── 모델 ──
     model = DrugCNN(num_classes=args.classes, dropout_p=args.dropout).to(device)
     n_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f"[학습] 파라미터 수: {n_params/1e6:.2f}M")
 
-    # ── 불균형 대응: 손실함수 ──
     criterion = build_criterion(args.loss, train_set.labels, args.classes,
                                 args.gamma, device)
-    # 검증 손실은 항상 일반 CE 로 측정(early-stopping 기준의 일관성)
     val_criterion = nn.CrossEntropyLoss()
     print(f"[학습] 손실: {args.loss}"
           + (f" (gamma={args.gamma})" if args.loss == "focal" else ""))
 
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
-    # ── Early Stopping ──
     best_val_loss = float("inf")
     patience_counter = 0
     CKPT_DIR.mkdir(parents=True, exist_ok=True)

@@ -41,7 +41,6 @@ from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 from PIL import Image
 
-# ──────────── 경로 ────────────
 SCRIPT_DIR   = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 CROPPED_DIR  = PROJECT_ROOT / "data" / "cropped"
@@ -57,10 +56,9 @@ def _load(mod_name: str, file_name: str):
     spec.loader.exec_module(mod)
     return mod
 
+
 DrugCNN = _load("model_2", "2_model.py").DrugCNN
 
-
-# ─────────────────────── 데이터 ──────────────────────────────────
 
 class TestDataset(Dataset):
     def __init__(self, items, cropped_dir, num_classes, transform):
@@ -93,9 +91,6 @@ def load_class_names(num_classes: int) -> list[str]:
     return [idx2name.get(i, f"class_{i}") for i in range(num_classes)]
 
 
-# ─────────────────────── 지표 계산(직접 구현) ─────────────────────
-# scikit-learn 이 있으면 사용하고, 없으면 numpy 로 동일 결과를 계산한다.
-
 def confusion_matrix_np(y_true, y_pred, n):
     cm = np.zeros((n, n), dtype=np.int64)
     for t, p in zip(y_true, y_pred):
@@ -106,8 +101,8 @@ def confusion_matrix_np(y_true, y_pred, n):
 def per_class_prf(cm: np.ndarray):
     """혼동행렬에서 클래스별 precision/recall/f1/support 계산."""
     tp = np.diag(cm).astype(np.float64)
-    support = cm.sum(axis=1).astype(np.float64)      # 행 합 = 실제 개수
-    pred_pos = cm.sum(axis=0).astype(np.float64)     # 열 합 = 예측 개수
+    support = cm.sum(axis=1).astype(np.float64)
+    pred_pos = cm.sum(axis=0).astype(np.float64)
     precision = np.divide(tp, pred_pos, out=np.zeros_like(tp), where=pred_pos > 0)
     recall    = np.divide(tp, support,  out=np.zeros_like(tp), where=support > 0)
     denom = precision + recall
@@ -115,8 +110,6 @@ def per_class_prf(cm: np.ndarray):
                    out=np.zeros_like(tp), where=denom > 0)
     return precision, recall, f1, support
 
-
-# ─────────────────────── 추론 ────────────────────────────────────
 
 @torch.no_grad()
 def run_inference(model, loader, device, k=5):
@@ -127,7 +120,7 @@ def run_inference(model, loader, device, k=5):
     for images, labels in loader:
         images = images.to(device)
         logits = model(images)
-        topk = logits.topk(k, dim=1).indices.cpu()      # (B, k)
+        topk = logits.topk(k, dim=1).indices.cpu()
         pred1 = topk[:, 0]
         for i, lbl in enumerate(labels):
             y_true.append(int(lbl)); y_pred.append(int(pred1[i]))
@@ -140,8 +133,6 @@ def run_inference(model, loader, device, k=5):
             top1_correct / total, topk_correct / total)
 
 
-# ─────────────────────── 시각화 ──────────────────────────────────
-
 def save_confusion_png(cm: np.ndarray, save_path: Path) -> None:
     try:
         import matplotlib
@@ -150,7 +141,7 @@ def save_confusion_png(cm: np.ndarray, save_path: Path) -> None:
     except ImportError:
         print("[평가] matplotlib 미설치 — 혼동행렬 PNG 스킵")
         return
-    # 행 기준 정규화(클래스별 비율)로 가독성 향상
+
     row_sum = cm.sum(axis=1, keepdims=True)
     norm = np.divide(cm, row_sum, out=np.zeros_like(cm, dtype=float),
                      where=row_sum > 0)
@@ -166,8 +157,6 @@ def save_confusion_png(cm: np.ndarray, save_path: Path) -> None:
     print(f"[평가] 혼동행렬 PNG 저장: {save_path}")
 
 
-# ─────────────────────────── 메인 ────────────────────────────────
-
 def main(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"[평가] 디바이스: {device}")
@@ -178,7 +167,6 @@ def main(args):
     print(f"[평가] 모델 로드: {args.checkpoint} "
           f"(epoch={ckpt.get('epoch')}, val_acc={ckpt.get('val_acc', 0):.4f})")
 
-    # 학습 시드와 평가 시드 일치 확인(다른 분할로 평가하면 누수 위험)
     if "splits_seed" in ckpt and ckpt["splits_seed"] != splits["meta"]["seed"]:
         print(f"  ⚠ 경고: 모델 학습 분할 seed({ckpt['splits_seed']}) ≠ "
               f"현재 splits.json seed({splits['meta']['seed']}). 동일 분할로 평가하세요.")
@@ -198,7 +186,6 @@ def main(args):
     macro_f1 = float(f1.mean())
     weighted_f1 = float(np.average(f1, weights=support)) if support.sum() else 0.0
 
-    # ── 콘솔 요약 ──
     print("=" * 55)
     print("  Test 평가 결과 (독립 분할)")
     print("=" * 55)
@@ -210,14 +197,12 @@ def main(args):
 
     names = load_class_names(num_classes)
 
-    # 성능 최저 5개 클래스(개선 포인트)
     order = np.argsort(f1)
     print("\n  F1 최저 5개 클래스:")
     for i in order[:5]:
         print(f"    [{i:3d}] {names[i][:28]:<28} "
               f"P={precision[i]:.2f} R={recall[i]:.2f} F1={f1[i]:.2f} (n={int(support[i])})")
 
-    # ── 저장 ──
     EVAL_DIR.mkdir(parents=True, exist_ok=True)
     json.dump({
         "top1_accuracy": top1, "top5_accuracy": top5,

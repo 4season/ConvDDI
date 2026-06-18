@@ -48,8 +48,6 @@ EXCEL_PATH   = PROJECT_ROOT / "data" / "contraindicated_drugs.xlsx"
 OUT_DIR      = PROJECT_ROOT / "output"
 
 
-# ───────────────────────── 정규화 ────────────────────────────────
-
 def clean(s: str) -> str:
     """괄호 내용 제거 → 소문자 → 영문/숫자/공백/+ 외 제거."""
     s = re.sub(r"\(.*?\)", " ", str(s))
@@ -67,8 +65,6 @@ def component_token_sets(material_en: str) -> list[set]:
             sets.append(toks)
     return sets
 
-
-# ─────────────────────── 두 가지 매칭 ────────────────────────────
 
 def match_substring(inn: str, material_en: str) -> bool:
     """[기존] INN 이 임의 성분 문자열의 substring 인가 (≤3자는 정확 일치)."""
@@ -88,23 +84,18 @@ def match_token(inn: str, material_en: str) -> bool:
     comp_sets = component_token_sets(material_en)
     if not comp_sets:
         return False
-    # '+' 로 복합제 부분 분리
     parts = [clean(p) for p in clean(inn).split("+")]
     parts = [p for p in parts if p]
     if not parts:
         return False
     for part in parts:
         words = part.split()
-        # 이 part 의 모든 단어가 '하나의' component 안에 있어야 함
         if not any(all(w in cs for w in words) for cs in comp_sets):
             return False
     return True
 
 
-# ─────────────── 손으로 라벨링한 검증셋 (gold set) ─────────────────
-# (INN, 약물 성분 material_en, 정답 매칭 여부) — 약학적으로 직접 확인한 라벨.
 GOLD = [
-    # ── 매칭되어야 하는 참(True) 케이스 ──
     ("rosuvastatin", "Rosuvastatin Calcium", True),
     ("topiramate",   "Topiramate", True),
     ("tramadol",     "Acetaminophen| Tramadol Hydrochloride", True),
@@ -116,7 +107,6 @@ GOLD = [
                      "Metformin Hydrochloride| Sitagliptin Phosphate Hydrate", True),
     ("rosuvastatin + ezetimibe",
                      "Ezetimibe| Rosuvastatin Calcium", True),
-    # ── 매칭되면 안 되는 거짓(False) 케이스 — substring 함정 ──
     ("ephedrine",    "Pseudoephedrine Hydrochloride| Triprolidine Hydrochloride Hydrate", False),
     ("omeprazole",   "Esomeprazole Magnesium Trihydrate", False),
     ("ibuprofen",    "Dexibuprofen", False),
@@ -144,8 +134,6 @@ def eval_matcher(matcher) -> dict:
     return dict(tp=tp, fp=fp, fn=fn, tn=tn,
                 precision=prec, recall=rec, accuracy=acc, f1=f1, wrong=wrong)
 
-
-# ─────────────── 전체 데이터셋 금기 쌍 재집계 ─────────────────────
 
 def load_dataset_drugs() -> dict:
     raw = json.load(open(CLASS_MAP, encoding="utf-8"))
@@ -182,8 +170,6 @@ def detect_pairs(drugs: dict, db: list, matcher) -> set:
     return found
 
 
-# ─────────────────────────── 실행 ────────────────────────────────
-
 def main():
     print("=" * 62)
     print("  1) 라벨링 검증셋(gold set)으로 매칭 정확도 비교")
@@ -213,7 +199,6 @@ def main():
     else:
         print("\n  개선 방식: 검증셋 전 케이스 정답 ✓")
 
-    # ── 2) 전체 데이터셋 재집계 ──
     print("\n" + "=" * 62)
     print("  2) 전체 데이터셋(100클래스) 금기 쌍 재집계")
     print("=" * 62)
@@ -221,7 +206,7 @@ def main():
     db = load_db_pairs()
     old_pairs = detect_pairs(drugs, db, match_substring)
     new_pairs = detect_pairs(drugs, db, match_token)
-    removed = old_pairs - new_pairs   # 개선으로 제거된(거짓 양성 추정) 쌍
+    removed = old_pairs - new_pairs
     added   = new_pairs - old_pairs
 
     print(f"  기존(substring) 검출 쌍: {len(old_pairs)}개")
@@ -234,7 +219,6 @@ def main():
         for ca, cb in list(removed)[:8]:
             print(f"    {drugs[ca]['name'][:24]} ↔ {drugs[cb]['name'][:24]}")
 
-    # ── 저장 ──
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     json.dump({
         "gold_set_size": len(GOLD),

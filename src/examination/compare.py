@@ -4,23 +4,21 @@ import os
 import pandas as pd
 from pathlib import Path
 
+
 def batch_check_deep_folders(base_folder_path, csv_file_path, csv_column_name="성분명1"):
-    
-    # 1. Recursively collect all .json files under the specified base directory
     if not os.path.isdir(base_folder_path):
         print(f" Base folder not found: {base_folder_path}")
         return
 
-    # Using recursive=True and '**/*.json' allows scanning the current directory and all subdirectories.
     search_pattern = os.path.join(base_folder_path, "**", "*.json")
     json_files = glob.glob(search_pattern, recursive=True)
-    
+
     if not json_files:
         print(f" No .json files found in '{base_folder_path}' or its subfolders.")
         return
 
     print(f" Scanning directories... Found a total of {len(json_files)} JSON files across all categories.")
-    
+
     json_ingredients = set()
     parsed_count = 0
 
@@ -28,23 +26,19 @@ def batch_check_deep_folders(base_folder_path, csv_file_path, csv_column_name="�
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 json_data = json.load(f)
-            
-            # Extract data from the path: images -> dl_material
+
             images = json_data.get("images", [])
             for img in images:
                 material = img.get("dl_material")
                 if material:
-                    # Convert to string and strip whitespace to prevent matching errors
                     json_ingredients.add(str(material).strip())
             parsed_count += 1
         except Exception as e:
-            # Print the relative path of the faulty file for easy debugging
             print(f" Error reading file [{os.path.relpath(file_path, base_folder_path)}]: {e}")
 
     print(f" JSON parsing completed: Successfully parsed {parsed_count}/{len(json_files)} files.")
     print(f"A total of {len(json_ingredients)} unique drug ingredients were successfully extracted across multiple folders.")
 
-    # 2. Load the reference file (supports both .xlsx and .csv)
     if not os.path.exists(csv_file_path):
         print(f" File not found: {csv_file_path}")
         return
@@ -58,7 +52,6 @@ def batch_check_deep_folders(base_folder_path, csv_file_path, csv_column_name="�
             print(f" Failed to read Excel file: {e}")
             return
     else:
-        # Try multiple encodings for CSV files
         for encoding in ['utf-8', 'cp949', 'utf-8-sig', 'euc-kr']:
             try:
                 df = pd.read_csv(csv_file_path, encoding=encoding)
@@ -70,7 +63,6 @@ def batch_check_deep_folders(base_folder_path, csv_file_path, csv_column_name="�
         print(f" Failed to read file. Please verify the file format and encoding.")
         return
 
-    # 3. Validate column existence and extract data
     if csv_column_name not in df.columns:
         print(f" Column '{csv_column_name}' not found in CSV.")
         print(f" Available columns in CSV: {list(df.columns)}")
@@ -79,12 +71,10 @@ def batch_check_deep_folders(base_folder_path, csv_file_path, csv_column_name="�
     csv_ingredients = set(df[csv_column_name].dropna().astype(str).str.strip())
     print(f" CSV loaded successfully. Extracted {len(csv_ingredients)} unique ingredients from column '{csv_column_name}'.")
 
-    # 4. Cross-analysis using set operations
     matched = json_ingredients.intersection(csv_ingredients)
     only_in_json = json_ingredients - csv_ingredients
     only_in_csv = csv_ingredients - json_ingredients
 
-    # 5. Print the comparison report
     print("\n" + "=" * 25 + " Cross-Folder Comparison Report " + "=" * 25)
     print(f" Number of perfectly matched ingredients: {len(matched)}")
 
@@ -94,40 +84,22 @@ def batch_check_deep_folders(base_folder_path, csv_file_path, csv_column_name="�
 
     print(f"\n Found only in CSV (Missing in JSON): {len(only_in_csv)}")
     if only_in_csv:
-        # Display up to 10 samples if the list is too long
         csv_show = list(only_in_csv)[:10] if len(only_in_csv) > 10 else list(only_in_csv)
         print(f"   CSV Sample Details (Top 10): {csv_show} ...")
     print("=" * 75)
 
-    # 6. Export missing ingredients to a CSV file if any discrepancies exist
     if only_in_json:
         error_df = pd.DataFrame(list(only_in_json), columns=["Missing_In_CSV"])
         error_df.to_csv("missing_in_csv.csv", index=False, encoding="utf-8-sig")
         print(" Saved the list of missing ingredients to local file: missing_in_csv.csv")
 
-# ==================== RUN CONFIGURATION ====================
 
 if __name__ == "__main__":
-    # 1. Path to the root directory containing multiple category subfolders
-    # Example structure:
-    # ./all_json_data/
-    #    ├── Category_A/
-    #    │     └── 1.json
-    #    └── Category_B/
-    #          └── 2.json
-
     main_file = Path(__file__).resolve()
     src_dir = main_file.parent
-
     PROJECT_ROOT = src_dir.parent
 
-    # 2. Path to your reference CSV file
     csv_path = PROJECT_ROOT / "data" / "contraindicated_drugs.xlsx"
-
-    # 3. Target column name in the file that contains the ingredient names
     CSV_COL = "material_1"
 
-    # Execute the deep cross-check
-    batch_check_deep_folders(PROJECT_ROOT,csv_path, CSV_COL)
-
-# ===========================================================
+    batch_check_deep_folders(PROJECT_ROOT, csv_path, CSV_COL)

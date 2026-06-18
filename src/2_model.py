@@ -21,8 +21,6 @@ import torch
 import torch.nn as nn
 
 
-# ──────────────────── 기본 컨볼루션 블록 ─────────────────────────
-
 class ConvBlock(nn.Module):
     """
     Conv2d(kernel=3, padding=1) → BatchNorm2d → ReLU → MaxPool2d(2×2)
@@ -38,7 +36,7 @@ class ConvBlock(nn.Module):
                 out_channels,
                 kernel_size=3,
                 padding=1,
-                bias=False,     # BN 뒤에 bias는 불필요 (BN의 β가 대체)
+                bias=False,
             ),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
@@ -48,8 +46,6 @@ class ConvBlock(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.block(x)
 
-
-# ──────────────────────── DrugCNN ────────────────────────────────
 
 class DrugCNN(nn.Module):
     """
@@ -61,16 +57,13 @@ class DrugCNN(nn.Module):
     def __init__(self, num_classes: int = 100, dropout_p: float = 0.5):
         super().__init__()
 
-        # ── Feature Extractor ──
         self.features = nn.Sequential(
-            ConvBlock(3,   32),   # (B,  3, 128,128) → (B,  32, 64, 64)
-            ConvBlock(32,  64),   # (B, 32,  64, 64) → (B,  64, 32, 32)
-            ConvBlock(64,  128),  # (B, 64,  32, 32) → (B, 128, 16, 16)
-            ConvBlock(128, 256),  # (B,128,  16, 16) → (B, 256,  8,  8)
+            ConvBlock(3,   32),
+            ConvBlock(32,  64),
+            ConvBlock(64,  128),
+            ConvBlock(128, 256),
         )
 
-        # ── Classifier ──
-        # Flatten 후 크기: 256 × 8 × 8 = 16,384
         self.classifier = nn.Sequential(
             nn.Linear(256 * 8 * 8, 512),
             nn.ReLU(inplace=True),
@@ -79,10 +72,10 @@ class DrugCNN(nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = self.features(x)            # (B, 256, 8, 8)
-        x = x.view(x.size(0), -1)      # (B, 16384)
-        x = self.classifier(x)          # (B, num_classes)
-        return x                        # 로짓 반환 (Softmax는 추론 시 별도 적용)
+        x = self.features(x)
+        x = x.view(x.size(0), -1)
+        x = self.classifier(x)
+        return x
 
     def predict_proba(self, x: torch.Tensor) -> torch.Tensor:
         """추론 시 Softmax 확률 반환"""
@@ -93,8 +86,6 @@ class DrugCNN(nn.Module):
         """추론 시 최고 확률 클래스 인덱스 반환"""
         return self.predict_proba(x).argmax(dim=1)
 
-
-# ──────────────────── 파라미터 수 계산 유틸 ──────────────────────
 
 def count_parameters(model: nn.Module) -> int:
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
@@ -129,14 +120,11 @@ def print_model_summary(model: nn.Module, input_size: tuple = (1, 3, 128, 128)):
     print("=" * 60)
 
 
-# ────────────────────────── 실행 (확인용) ────────────────────────
-
 if __name__ == "__main__":
     model = DrugCNN(num_classes=100, dropout_p=0.5)
     print_model_summary(model)
 
-    # 순전파 테스트
-    dummy = torch.randn(4, 3, 128, 128)  # batch=4
+    dummy = torch.randn(4, 3, 128, 128)
     model.eval()
     with torch.no_grad():
         logits = model(dummy)
@@ -144,7 +132,7 @@ if __name__ == "__main__":
         preds  = model.predict(dummy)
 
     print(f"\n  순전파 테스트:")
-    print(f"  로짓  shape : {logits.shape}")   # (4, 100)
-    print(f"  확률  shape : {probs.shape}")    # (4, 100)
-    print(f"  예측  shape : {preds.shape}")    # (4,)
-    print(f"  확률 합계  : {probs.sum(dim=1)}")  # 각 배치 ≈ 1.0
+    print(f"  로짓  shape : {logits.shape}")
+    print(f"  확률  shape : {probs.shape}")
+    print(f"  예측  shape : {preds.shape}")
+    print(f"  확률 합계  : {probs.sum(dim=1)}")

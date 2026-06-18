@@ -48,14 +48,11 @@ import random
 from collections import defaultdict
 from pathlib import Path
 
-# ────────────────────────── 경로 ──────────────────────────────────
 SCRIPT_DIR   = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 CROPPED_DIR  = PROJECT_ROOT / "data" / "cropped"
 SPLITS_PATH  = PROJECT_ROOT / "data" / "splits.json"
 
-
-# ─────────────────────── combo 키 추출 ────────────────────────────
 
 def combo_key(file_name: str) -> str:
     """
@@ -67,8 +64,6 @@ def combo_key(file_name: str) -> str:
     stem = file_name[:-4] if file_name.endswith(".png") else file_name
     return stem.split("_0_")[0] if "_0_" in stem else stem.rsplit("_", 1)[0]
 
-
-# ─────────────────────── 클래스/이미지 수집 ───────────────────────
 
 def collect_class_dirs(cropped_dir: Path) -> list[Path]:
     """data/cropped 아래 '000_K-XXXXXX' 형식의 클래스 폴더만 정렬해 반환."""
@@ -118,7 +113,6 @@ def assign_combos(
         assign = {c: ("train" if i < a else "val" if i < b else "test")
                   for i, c in enumerate(combos)}
 
-        # 클래스 coverage 검증
         cover = defaultdict(set)
         for c, classes in combo_classes.items():
             for ci in classes:
@@ -129,12 +123,9 @@ def assign_combos(
                 print(f"[분할] coverage 보정: {attempt+1}번째 시도에서 전 클래스 포함")
             return assign
 
-    # 50회로도 실패하면 마지막 배정을 그대로 사용(경고는 run에서 출력)
     print("[분할] ⚠ 일부 클래스가 특정 split에 없을 수 있습니다.")
     return assign
 
-
-# ─────────────────────────── 메인 ─────────────────────────────────
 
 def run(ratios: tuple[float, float, float], seed: int, dry_run: bool) -> None:
     assert abs(sum(ratios) - 1.0) < 1e-6, "train+val+test 비율 합은 1이어야 합니다."
@@ -153,7 +144,6 @@ def run(ratios: tuple[float, float, float], seed: int, dry_run: bool) -> None:
     for it in items:
         all_splits[assign[it["combo"]]].append(it)
 
-    # 누수 검증: 한 combo가 두 split에 걸쳐 있으면 leak (전역 배정이므로 0이어야 함)
     combo_to_split: dict[str, str] = {}
     leak = 0
     for split_name in ("train", "val", "test"):
@@ -163,7 +153,6 @@ def run(ratios: tuple[float, float, float], seed: int, dry_run: bool) -> None:
                 leak += 1
             combo_to_split[item["combo"]] = split_name
 
-    # ── 통계 ──
     n_tr, n_va, n_te = (len(all_splits[s]) for s in ("train", "val", "test"))
     total = n_tr + n_va + n_te
     classes_per_split = {

@@ -18,21 +18,17 @@ import pandas as pd
 from pathlib import Path
 from collections import defaultdict
 
-
-# ─────────────────────────── 경로 설정 ────────────────────────────
 SCRIPT_DIR   = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent.parent
 LABEL_BASE   = PROJECT_ROOT / "data" / "labels"
 EXCEL_PATH   = PROJECT_ROOT / "data" / "contraindicated_drugs.xlsx"
 
 
-# ─────────────────────── 헬퍼 함수 ───────────────────────────────
-
 def clean_excel_ingredient(raw: str) -> str:
     """Excel 성분명 정규화: 괄호 제거 → 소문자 → 공백 정리"""
     if not raw:
         return ""
-    s = re.sub(r"\(.*?\)", "", str(raw))   # 괄호 및 내부 제거
+    s = re.sub(r"\(.*?\)", "", str(raw))
     s = s.strip().lower()
     return s
 
@@ -64,8 +60,6 @@ def ingredient_matches(excel_inn: str, drug_ingredients: list[str]) -> bool:
                 return True
     return False
 
-
-# ────────────────────── Step 1: JSON 스캔 ─────────────────────────
 
 def scan_dataset_drugs() -> dict:
     """
@@ -100,8 +94,6 @@ def scan_dataset_drugs() -> dict:
     return drugs
 
 
-# ────────────────────── Step 2: Excel 로드 ───────────────────────
-
 def load_contraindicated_db() -> list[dict]:
     """
     병용금기 Excel을 파싱하여 정규화된 쌍 목록 반환.
@@ -112,8 +104,8 @@ def load_contraindicated_db() -> list[dict]:
 
     pairs = []
     for r in range(2, ws.max_row + 1):
-        m1   = clean_excel_ingredient(ws.cell(r, 2).value)
-        m2   = clean_excel_ingredient(ws.cell(r, 3).value)
+        m1 = clean_excel_ingredient(ws.cell(r, 2).value)
+        m2 = clean_excel_ingredient(ws.cell(r, 3).value)
         note = ws.cell(r, 4).value or ""
         info = ws.cell(r, 5).value or ""
         if m1 and m2:
@@ -122,8 +114,6 @@ def load_contraindicated_db() -> list[dict]:
     print(f"[Excel] 병용금기 쌍: {len(pairs):,}개 로드 완료")
     return pairs
 
-
-# ────────────────────── Step 3: 교차 매칭 ────────────────────────
 
 def find_contraindicated_pairs(drugs: dict, db: list[dict]) -> list[dict]:
     """
@@ -135,7 +125,6 @@ def find_contraindicated_pairs(drugs: dict, db: list[dict]) -> list[dict]:
     for pair in db:
         m1, m2 = pair["m1"], pair["m2"]
 
-        # 각 Excel 성분에 매칭되는 데이터셋 약물 수집
         matched_m1 = [
             code for code, info in drugs.items()
             if ingredient_matches(m1, info["ingredients"])
@@ -146,7 +135,6 @@ def find_contraindicated_pairs(drugs: dict, db: list[dict]) -> list[dict]:
         ]
 
         if matched_m1 and matched_m2:
-            # 같은 약이 m1=m2 매칭되는 경우(복합제) 제외
             if set(matched_m1) == set(matched_m2):
                 continue
             results.append({
@@ -160,8 +148,6 @@ def find_contraindicated_pairs(drugs: dict, db: list[dict]) -> list[dict]:
 
     return results
 
-
-# ─────────────────────── Step 4: 결과 출력 ───────────────────────
 
 def print_report(drugs: dict, results: list[dict]) -> None:
     print("\n" + "=" * 70)
@@ -208,28 +194,18 @@ def save_results_csv(drugs: dict, results: list[dict]) -> Path:
     return out_path
 
 
-# ─────────────────────────── 실행 ────────────────────────────────
-
 def main():
     print("=" * 70)
     print("  병용금기 교차 검색 시작")
     print("=" * 70 + "\n")
 
-    # 1. 데이터셋 약물 수집
     drugs = scan_dataset_drugs()
-
-    # 2. 병용금기 DB 로드
     db = load_contraindicated_db()
-
-    # 3. 교차 매칭
-    print("\n[매칭] 교차 검색 중...")
     results = find_contraindicated_pairs(drugs, db)
 
-    # 4. 결과 출력 및 저장
     print_report(drugs, results)
     save_results_csv(drugs, results)
 
-    # 5. 요약 통계: 가장 많이 등장한 약물
     from collections import Counter
     drug_freq: Counter = Counter()
     for r in results:

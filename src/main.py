@@ -17,8 +17,6 @@ DrugCNN 병용금기 탐지 파이프라인 엔트리포인트.
 
   [Step 3-B] 전체 학습 (100 클래스, 불균형 보정 — 기본 weighted loss)
       python src/main.py train
-      python src/main.py train --loss focal --gamma 2.0
-      python src/main.py train --loss weighted --sampler weighted
 
   [Step 4] test 전용 최종 평가 (혼동행렬·Macro F1·Top-5)
       python src/main.py evaluate
@@ -53,17 +51,14 @@ def main() -> None:
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
-    # preprocess
     sub.add_parser("preprocess", help="Step 1: 이미지 전처리 (bbox 크롭)")
 
-    # split
     s = sub.add_parser("split", help="Step 2: 사진(combo) 단위 train/val/test 분할")
     s.add_argument("--train", type=float, default=0.70)
     s.add_argument("--val",   type=float, default=0.15)
     s.add_argument("--test",  type=float, default=0.15)
     s.add_argument("--seed",  type=int,   default=42)
 
-    # train
     t = sub.add_parser("train", help="Step 3: 모델 학습 (불균형 보정)")
     t.add_argument("--lr",       type=float, default=1e-3)
     t.add_argument("--batch",    type=int,   default=128)
@@ -75,12 +70,10 @@ def main() -> None:
     t.add_argument("--sampler",  choices=["none", "weighted"], default="none")
     t.add_argument("--gamma",    type=float, default=2.0)
 
-    # evaluate
     e = sub.add_parser("evaluate", help="Step 4: test 전용 최종 평가")
     e.add_argument("--checkpoint", default=None)
     e.add_argument("--batch", type=int, default=256)
 
-    # predict
     p = sub.add_parser("predict", help="Step 5: 추론 + 병용금기 체크")
     p.add_argument("--images",     nargs="+")
     p.add_argument("--photo")
