@@ -74,7 +74,7 @@ FC2(512→100) → Logits
 |:---:|:---:|
 | ![Block 3](output/report_assets/feature_maps/block3_feature_maps.png) | ![Block 4](output/report_assets/feature_maps/block4_feature_maps.png) |
 
-> 얕은 층(Block 1~2)은 에지·색 대비 같은 **저수준 보편 특징**에 반응하고, 깊은 층(Block 3~4)은 약품의 윤곽·각인 패턴 같은 **고수준 과제 특화 특징**에 반응하는 경향을 확인할 수 있습니다.
+> 얕은 층(Block 1-2)은 에지·색 대비 같은 **저수준 보편 특징**에 반응하고, 깊은 층(Block 3-4)은 약품의 윤곽·각인 패턴 같은 **고수준 과제 특화 특징**에 반응하는 경향을 확인할 수 있습니다.
 
 ---
 
@@ -96,9 +96,9 @@ ConvDDI/
 │   └── 대화정리_약품분류프로젝트.md          ← 개발 과정 정리
 │
 ├── data/
-│   ├── images/                            ← 원본 이미지 (TS_1 ~ TS_8)
-│   ├── labels/                            ← COCO JSON 라벨 (TL_1 ~ TL_8)
-│   ├── cropped/                           ← 크롭된 단일 약품 이미지 (~43,350장)
+│   ├── images/                            ← 원본 이미지 (TS_1 - TS_8)
+│   ├── labels/                            ← COCO JSON 라벨 (TL_1 - TL_8)
+│   ├── cropped/                           ← 크롭된 단일 약품 이미지 (약 43,350장)
 │   ├── class_map.json                     ← 클래스 인덱스 ↔ 약품코드/성분명 매핑
 │   ├── splits.json                        ← train/val/test 분할 (사진 단위, 누수 0건)
 │   └── contraindicated_drugs.xlsx         ← 병용금기 DB (1,628쌍)
@@ -270,7 +270,7 @@ python src/examination/validate_contraindication.py
 |---|---|
 | **전이학습 미사용** | ResNet·EfficientNet 등 사전학습 모델 없이 처음부터 학습(from scratch). 전이학습 대비 데이터 효율과 정확도에서 불리할 수 있다. |
 | **낮은 입력 해상도** | 128×128로 리사이즈하여 약품 표면의 미세 각인·글자를 놓칠 수 있다. 224×224 이상에서 성능 향상 가능성이 있다. |
-| **FC 파라미터 집중** | 전체 8.83M 중 ~95%가 FC1(16,384×512)에 몰려 있어 과적합 위험이 구조적으로 존재한다. Global Average Pooling 적용 시 파라미터를 대폭 줄일 수 있다. |
+| **FC 파라미터 집중** | 전체 8.83M 중 약 95%가 FC1(16,384×512)에 몰려 있어 과적합 위험이 구조적으로 존재한다. Global Average Pooling 적용 시 파라미터를 대폭 줄일 수 있다. |
 
 ### 병용금기 검출 측면
 
