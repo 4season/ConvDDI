@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+  @font-face { font-family:'Pretendard'; font-weight:400; src:url('assets/fonts/Pretendard-Regular.ttf'); }
+  @font-face { font-family:'Pretendard'; font-weight:500; src:url('assets/fonts/Pretendard-Medium.ttf'); }
+  @font-face { font-family:'Pretendard'; font-weight:600; src:url('assets/fonts/Pretendard-SemiBold.ttf'); }
+  @font-face { font-family:'Pretendard'; font-weight:700; src:url('assets/fonts/Pretendard-Bold.ttf'); }
+
+  :root{
+    --ink:#2A3B3A; --primary:#115E59; --primary2:#1F4D49; --teal:#3C8C82;
+    --soft:#EDF4F2; --danger:#B23A36; --gray:#8A9A97; --line:#D5E0DD; --tagbg:#EEF2F1;
+  }
+  @page { size: 1280px 720px; margin:0; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { font-family:'Pretendard',sans-serif; color:var(--ink); }
+
+  .slide{ width:1280px; height:720px; position:relative;
+    padding:52px 74px 50px 74px; page-break-after:always; overflow:hidden; }
+  .slide:last-child{ page-break-after:avoid; }
+
+  h1.slide-title{ font-size:29px; font-weight:700; color:var(--primary);
+    line-height:1.3; margin-bottom:20px; }
+  h2.section{ font-size:17px; font-weight:700; color:var(--primary2); margin:21px 0 11px; }
+  p.lead{ font-size:15.5px; line-height:1.78; margin-bottom:9px; }
+  ul{ margin-left:20px; }
+  li{ margin-bottom:11px; line-height:1.72; font-size:14.5px; }
+  li > ul{ margin-top:7px; }
+  b{ font-weight:700; color:var(--primary2); }
+  .tag{ background:var(--tagbg); color:var(--primary2); padding:1px 6px;
+    border-radius:4px; font-family:'Courier New',monospace; font-size:12.5px; }
+  .danger{ color:var(--danger); font-weight:700; }
+  .page-num{ position:absolute; bottom:20px; right:34px; color:var(--gray); font-size:13px; }
+
+  .cols{ display:table; width:100%; table-layout:fixed; border-spacing:22px 0; }
+  .col{ display:table-cell; vertical-align:top; }
+  .imgwrap{ text-align:center; }
+  .imgwrap img{ max-width:100%; }
+  .caption{ font-size:12.5px; color:var(--gray); text-align:center; margin-top:5px; }
+
+  table.data{ border-collapse:collapse; width:100%; margin-top:8px; }
+  table.data th, table.data td{ border:1px solid var(--line); padding:9px 12px;
+    font-size:13.5px; text-align:center; }
+  table.data th{ background:var(--soft); color:var(--primary2); font-weight:700; }
+  .warn-row td{ color:var(--danger); }
+
+  /* CNN block diagram (절제된 단색) */
+  .arch{ display:table; width:100%; table-layout:fixed; border-spacing:6px 0; margin-top:12px; }
+  .blk{ display:table-cell; text-align:center; }
+  .blk .box{ background:var(--teal); color:#fff; border-radius:6px;
+    padding:12px 4px; font-size:12.5px; font-weight:600; }
+  .blk.fc .box{ background:var(--primary); }
+  .blk.out .box{ background:var(--primary2); }
+  .blk .dim{ font-size:11px; color:var(--gray); margin-top:5px; }
+
+  /* 실행 결과 코드 블록 (절제) */
+  .code{ background:#F4F7F6; border:1px solid var(--line); border-radius:6px;
+    padding:16px 20px; font-family:'Courier New',monospace; font-size:13px;
+    line-height:1.72; color:var(--ink); margin-top:10px; }
+  .code .cmd{ color:var(--primary); font-weight:700; }
+  .code .dim{ color:var(--gray); }
+  .code .rule{ color:#C2CFCC; }
+  .code .sec{ color:var(--primary2); font-weight:700; }
+  .code .warnhd{ color:var(--danger); font-weight:700; }
+  .code .prod{ color:var(--primary2); font-weight:700; }
+  .code .risk{ color:var(--danger); }
+
+  /* Title slide */
+  .title-slide{ display:flex; flex-direction:column; justify-content:center; }
+  .title-slide .rule{ width:64px; height:4px; background:var(--teal); margin-bottom:26px; }
+  .title-slide h1{ font-size:40px; font-weight:700; color:var(--primary);
+    line-height:1.4; margin-bottom:30px; }
+  .title-slide .meta{ font-size:17px; line-height:1.95; }
+  .summary{ display:table; width:100%; table-layout:fixed; border-spacing:14px 0; margin-top:6px; }
+  .summary .cell{ display:table-cell; text-align:center; border:1px solid var(--line);
+    border-radius:8px; padding:14px 8px; }
+  .summary .num{ font-size:26px; font-weight:700; color:var(--primary); line-height:1; }
+  .summary .lbl{ font-size:13px; color:var(--ink); margin-top:7px; }
+</style>
+</head>
+<body>
+
+<!-- 1. Title -->
+<div class="slide title-slide">
+  <div class="rule"></div>
+  <h1>CNN 기반 약품 이미지 분류 및<br>병용금기(竝用禁忌) 검출 시스템</h1>
+  <div class="meta">
+    <div><b>과목명</b> · 딥러닝 (Team Project 06)</div>
+    <div><b>핵심</b> · 사진 한 장으로 약품을 식별하고, 함께 먹으면 안 되는 조합을 자동 경고</div>
+    <div><b>도구</b> · Python · PyTorch · CNN 100 클래스</div>
+  </div>
+</div>
+
+<!-- 2. 소개 -->
+<div class="slide">
+  <h1 class="slide-title">1. 소개 (Introduction)</h1>
+  <h2 class="section">배경 및 문제 제기</h2>
+  <ul>
+    <li>의약품에는 함께 복용하면 위험한 <b>병용금기 조합</b>이 존재하며, 국내에서도 식약처·HIRA가 다수의 금기 조합(약 <b>1,628쌍</b>)을 관리합니다.</li>
+    <li>금기 확인의 선행 과제는 <b>사진 속 개별 약품을 정확히 식별</b>하는 것입니다. 그러나 한 장에 약품 4개가 다양한 각도로 찍혀 있어, 그대로 다루면 객체 검출(object detection) 문제가 되어 수업 범위를 벗어납니다.</li>
+  </ul>
+  <h2 class="section">가설 및 목표</h2>
+  <ul>
+    <li><b>가설</b> · 다중 약품 사진을 bbox로 크롭해 단일 약품 이미지로 만들면 <b>CNN 분류 문제로 환원</b>할 수 있고, 분류 결과를 성분명으로 변환해 금기 DB와 대조하면 자동 검출이 가능하다.</li>
+    <li><b>목표</b> · 약품 <b>100종</b>을 분류하는 CNN을 구현하고(<span class="tag">128×128</span> 입력), 분류 결과를 병용금기 조회 파이프라인과 연결해 <b>위험한 조합을 자동으로 경고</b>하는 end-to-end 시스템을 완성한다.</li>
+  </ul>
+  <div class="page-num">2</div>
+</div>
+
+<!-- 3. 방법 - 데이터 -->
+<div class="slide">
+  <h1 class="slide-title">2. 방법 (Methods) — 데이터 및 전처리</h1>
+  <div class="cols">
+    <div class="col" style="width:46%">
+      <h2 class="section">데이터 설명</h2>
+      <ul>
+        <li><b>원천</b> · 약품 사진 약 30GB(원본 976×1280), 사진당 약품 4종 + 다중 각도</li>
+        <li><b>주석</b> · COCO 포맷 JSON 라벨 <b>46,117개</b>, 약품별 bounding box</li>
+        <li><b>고유 약품코드</b> · 118종 → <b>100종</b> 학습 클래스로 선정</li>
+        <li><b>전처리 결과</b> · bbox 크롭으로 단일 약품 <b>43,350장</b></li>
+      </ul>
+      <h2 class="section">전처리 로직</h2>
+      <ul>
+        <li><b>직사각형 bbox 크롭</b> · 정밀 외곽선(누끼)은 분류 기여가 작아 생략</li>
+        <li><b>리사이즈·정규화</b> · 128×128 이중선형 보간 후 <b>ImageNet 통계</b>로 픽셀값 정규화. <span style="color:var(--gray)">ImageNet 통계 = 대형 이미지셋의 RGB 채널별 평균·표준편차(μ=0.485/0.456/0.406)로, <span class="tag">(x−μ)/σ</span> 변환 시 분포가 평균 0·표준편차 1에 맞춰져 수렴이 빨라짐.</span> 입력을 일정한 크기·분포로 맞추는 <b>학습 전 표준 전처리</b>이며, 모델 내부의 BatchNorm과는 별개의 단계.</li>
+        <li><b class="danger">사진(combo) 단위 분할</b> · 같은 사진의 각도 변형이 train·검증에 섞이는 누수를 막기 위해, 한 사진의 모든 크롭을 train/val/test 한 곳에만 배정 → <b>70/15/15, 분할 간 공유 사진 0건</b>.</li>
+      </ul>
+    </div>
+    <div class="col" style="width:54%">
+      <div class="imgwrap" style="margin-top:6px">
+        <img src="output/report_assets/chart_class_distribution.png" style="max-height:330px">
+        <div class="caption">100종 모두 학습에 사용 · 클래스별 159~1,098장으로 불균형 존재</div>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">3</div>
+</div>
+
+<!-- 3-1. 방법 - 학습 데이터 샘플 -->
+<div class="slide">
+  <h1 class="slide-title">2-0. 방법 (Methods) — 학습 데이터 샘플</h1>
+  <p class="lead">실제 학습에 사용한 단일 약품 크롭 이미지의 예시입니다. 다양한 색·형태·표면 각인을 가진 <b>100종</b>을 분류하며, <span class="danger">빨간 테두리</span>는 프로젝트의 핵심 대상인 <b>병용금기 약물</b>입니다.</p>
+  <div class="imgwrap" style="margin-top:10px">
+    <img src="output/report_assets/sample_training_images.png" style="max-height:430px">
+    <div class="caption">학습 데이터 샘플 12종 (각 클래스 폴더에서 1장씩) · 빨간 테두리 = 병용금기 3종</div>
+  </div>
+  <div class="page-num">4</div>
+</div>
+
+<!-- 4. 방법 - 클래스 선정 -->
+<div class="slide">
+  <h1 class="slide-title">2-1. 방법 (Methods) — 학습 클래스 선정 기준</h1>
+  <p class="lead">고유 약품코드 118종 중 100종을 다음 우선순위로 선정해, 분류기와 최종 검출 목표를 일관되게 연결했습니다.</p>
+  <h2 class="section">선정 우선순위</h2>
+  <ul>
+    <li><b>① 병용금기 약물 우선 포함</b> · 프로젝트 목표가 금기 조합 검출이므로, 데이터셋 내 금기 약물(아질렉트정 등 <b>3종</b>)을 반드시 포함 (<span class="tag">class_map.json</span>의 <span class="tag">priority: true</span>).</li>
+    <li><b>② 나머지는 데이터 수량 상위 순</b> · 크롭 이미지 수가 많은 약물부터 채워 학습 안정성 확보.</li>
+  </ul>
+  <table class="data">
+    <tr><th>class_idx</th><th>약품명</th><th>성분 (영문)</th><th>이미지 수</th><th>구분</th></tr>
+    <tr class="warn-row"><td>0</td><td>아질렉트정</td><td>rasagiline</td><td>159</td><td>병용금기</td></tr>
+    <tr class="warn-row"><td>1</td><td>울트라셋이알서방정</td><td>tramadol</td><td>240</td><td>병용금기</td></tr>
+    <tr class="warn-row"><td>2</td><td>액티프롤정 60mg</td><td>pseudoephedrine</td><td>360</td><td>병용금기</td></tr>
+    <tr><td>3 ~ 99</td><td>일반 약품 97종</td><td>—</td><td>데이터 수량 상위</td><td>일반</td></tr>
+  </table>
+  <div class="page-num">5</div>
+</div>
+
+<!-- 5. 방법 - 모델 구조 -->
+<div class="slide">
+  <h1 class="slide-title">2-2. 방법 (Methods) — DrugCNN 구조</h1>
+  <h2 class="section">모델 선정 이유</h2>
+  <ul>
+    <li><b>CNN</b> · 약품 식별은 표면의 각인·색·형태 같은 <b>국소 특징</b>에 의존 → 가중치 공유 합성곱이 적합하고 평행이동에 강건.</li>
+    <li><b>블록 구성</b> · <span class="tag">[CONV→BN→ReLU→POOL]</span> 블록 4개 반복 + FC + Dropout. 약 <b>8.83M 파라미터</b>(대부분 FC1에 집중).</li>
+  </ul>
+  <h2 class="section">아키텍처 (채널·해상도 변화)</h2>
+  <div class="arch">
+    <div class="blk"><div class="box">입력</div><div class="dim">3×128×128</div></div>
+    <div class="blk"><div class="box">Conv1</div><div class="dim">32×64×64</div></div>
+    <div class="blk"><div class="box">Conv2</div><div class="dim">64×32×32</div></div>
+    <div class="blk"><div class="box">Conv3</div><div class="dim">128×16×16</div></div>
+    <div class="blk"><div class="box">Conv4</div><div class="dim">256×8×8</div></div>
+    <div class="blk fc"><div class="box">FC1+Drop</div><div class="dim">512</div></div>
+    <div class="blk out"><div class="box">FC2</div><div class="dim">100 클래스</div></div>
+  </div>
+  <table class="data" style="margin-top:14px">
+    <tr><th>구성 요소</th><th>합성곱·패딩</th><th>풀링</th><th>배치정규화</th><th>드롭아웃</th><th>Softmax+교차엔트로피</th><th>Adam·역전파</th><th>조기종료</th></tr>
+    <tr><td>코드</td><td><span class="tag">Conv2d</span></td><td><span class="tag">MaxPool2d</span></td><td><span class="tag">BatchNorm2d</span></td><td><span class="tag">Dropout(0.5)</span></td><td><span class="tag">CrossEntropyLoss</span></td><td><span class="tag">Adam</span>·<span class="tag">backward()</span></td><td><span class="tag">patience</span></td></tr>
+  </table>
+  <div class="page-num">6</div>
+</div>
+
+<!-- 6. 방법 - 아키텍처 설계 근거 -->
+<div class="slide">
+  <h1 class="slide-title">2-3. 방법 (Methods) — 아키텍처 설계 근거</h1>
+  <p class="lead">각 구조 결정은 <b>'식별 정확도 ↔ 학습 비용'의 균형</b>과, 파라미터가 FC1에 집중되는 특성을 고려해 정했습니다.</p>
+  <table class="data" style="margin-top:12px">
+    <tr><th style="width:15%">설계 결정</th><th style="width:20%">선택</th><th>근거</th></tr>
+    <tr><td>입력 해상도</td><td>128×128</td><td style="text-align:left">약품 각인·글자를 식별하기에 충분하면서 ImageNet급(224)보다 작아 1~2시간 학습 예산에 맞춘 해상도.</td></tr>
+    <tr><td>네트워크 깊이</td><td>Conv 블록 4개</td><td style="text-align:left">MaxPool이 절반씩 줄여 128→64→32→16→8. 5블록(4×4)은 정보 과소실, 3블록(16×16)은 FC 입력 폭증 → <b>4블록이 균형점</b>.</td></tr>
+    <tr><td>채널 수</td><td>32→64→128→256</td><td style="text-align:left">해상도가 줄어드는 만큼 채널을 2배씩 늘려 표현력(정보량)을 유지하는 피라미드 구조.</td></tr>
+    <tr><td>커널·패딩</td><td>3×3, pad=1, stride=1</td><td style="text-align:left">작은 커널을 쌓아 적은 파라미터로 넓은 수용영역 확보. 합성곱은 크기를 보존하고 축소는 Pool이 전담.</td></tr>
+    <tr><td>Dropout 위치</td><td>FC1 뒤 · p=0.5</td><td style="text-align:left">전체 8.83M 중 <b>FC1이 약 8.39M(95%)</b> — 과적합 위험이 가장 큰 층을 정조준해 정규화.</td></tr>
+    <tr><td>정규화</td><td>BatchNorm (각 conv 뒤)</td><td style="text-align:left">층별 입력 분포를 안정화해 수렴을 가속하고 그래디언트를 안정시킴.</td></tr>
+  </table>
+  <p class="lead" style="margin-top:13px">→ 핵심은 <b>파라미터의 약 95%가 FC1에 몰린다</b>는 점입니다. 그래서 Dropout을 정확히 그 지점에 두고, 합성곱부는 작은 커널·풀링으로 가볍게 유지했습니다.</p>
+  <div class="page-num">7</div>
+</div>
+
+<!-- 6-1. 방법 - 설계 근거 심화 -->
+<div class="slide">
+  <h1 class="slide-title">2-3-1. 방법 (Methods) — 설계 근거 심화</h1>
+  <p class="lead">앞 장의 구조 결정에 더해, 메모리·해석 관점의 설계 근거를 <b>'입증된 값'과 '관례에서 따라온 값'으로 구분</b>해 정리했습니다.</p>
+  <table class="data" style="margin-top:12px">
+    <tr><th style="width:20%">쟁점</th><th>핵심 근거</th></tr>
+    <tr>
+      <td>채널을 2의 거듭제곱으로<br>(32·64·128·256)</td>
+      <td style="text-align:left">GPU·CPU의 메모리 접근과 벡터 연산은 <b>2의 거듭제곱 크기에서 정렬(alignment)·타일링이 맞아</b>, 같은 파라미터 수라도 텐서 연산 처리량과 캐시 효율이 높습니다. 임의 값(50·100)보다 최적화된 커널 경로를 타기 쉽습니다.</td>
+    </tr>
+    <tr>
+      <td>8×8의 성격<br>(증명된 최적 아님)</td>
+      <td style="text-align:left">최종 8×8은 실험으로 최적을 입증한 값이 아니라 <b>"입력 128 + 블록 4개"의 산술적 귀결</b>(128→64→32→16→8)입니다. 6×6·16×16과의 비교는 수행하지 않았으며 향후 과제로 둡니다.</td>
+    </tr>
+    <tr>
+      <td>각 채널이 학습하는 특징<br>(해석상 추정)</td>
+      <td style="text-align:left">얕은 층(32·64)은 <b>에지·색 대비·질감 등 저수준 보편 특징</b>, 깊은 층(128·256)은 이를 조합한 <b>윤곽·각인·색+형태 등 고수준 특징</b>에 반응하는 경향. 단, 채널 1개가 개념 1개에 일대일 대응하지는 않습니다.</td>
+    </tr>
+  </table>
+  <div class="page-num">8</div>
+</div>
+
+<!-- 6-2. 방법 - 학습된 채널 시각화 -->
+<div class="slide">
+  <h1 class="slide-title">2-3-2. 방법 (Methods) — 학습된 채널 시각화 (Feature Maps)</h1>
+  <p class="lead">학습된 <span class="tag">best_model.pth</span>에 약품 한 장을 통과시켜, 각 블록 채널의 반응을 직접 확인했습니다. 앞 장의 '해석상 추정'을 <b>실제 관찰로 확인</b>한 결과입니다.</p>
+  <div class="cols" style="margin-top:8px">
+    <div class="col" style="width:36%">
+      <div class="imgwrap">
+        <img src="output/report_assets/feature_maps/input_resized.png" style="max-height:150px">
+        <div class="caption">입력 (128×128) — 표면에 'GIL' 각인이 있는 알약</div>
+      </div>
+      <h2 class="section" style="margin-top:14px">관찰</h2>
+      <ul>
+        <li><b>얕은 층(Block 1, 64×64)</b> · 채널마다 알약 <b>윤곽·각인 글자·에지·배경</b> 등 저수준 특징에 분담해 반응.</li>
+        <li><b>깊은 층(Block 4, 8×8)</b> · 형체를 알아볼 수 없는 <b>추상적 활성 패턴</b>으로 변환 — 위치보다 '존재' 위주의 고수준 특징.</li>
+        <li>일부 채널은 거의 비활성(특징 선택성) → <b>채널 1개 = 개념 1개</b>가 아니라 분산 표현.</li>
+      </ul>
+    </div>
+    <div class="col" style="width:64%">
+      <div class="cols" style="border-spacing:14px 0">
+        <div class="col" style="width:50%">
+          <div class="imgwrap">
+            <img src="output/report_assets/feature_maps/block1_feature_maps.png" style="max-height:320px">
+            <div class="caption">Block 1 · 저수준(에지·각인·윤곽)</div>
+          </div>
+        </div>
+        <div class="col" style="width:50%">
+          <div class="imgwrap">
+            <img src="output/report_assets/feature_maps/block4_feature_maps.png" style="max-height:320px">
+            <div class="caption">Block 4 · 고수준(추상 활성)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">9</div>
+</div>
+
+<!-- 7. 방법 - 학습 설정 + lr 탐색 -->
+<div class="slide">
+  <h1 class="slide-title">2-4. 방법 (Methods) — 학습 설정 및 하이퍼파라미터 탐색</h1>
+  <div class="cols">
+    <div class="col" style="width:54%">
+      <h2 class="section">학습 설정</h2>
+      <table class="data">
+        <tr><th>구성</th><th>선택</th><th>근거</th></tr>
+        <tr><td>손실함수</td><td>CrossEntropy</td><td>다중분류 표준</td></tr>
+        <tr><td>옵티마이저</td><td>Adam</td><td>적응적 학습률</td></tr>
+        <tr><td>정규화</td><td>Dropout 0.5 · BN</td><td>과적합 억제</td></tr>
+        <tr><td>증강</td><td>Flip·Rotation·Jitter</td><td>각도·조명 대응</td></tr>
+        <tr><td>조기종료</td><td>patience = 8</td><td>너무 작으면 과소적합, 크면 과적합·낭비 — lr=3e-4의 빠른 수렴상 8이면 충분</td></tr>
+      </table>
+      <h2 class="section">2단계 탐색 전략</h2>
+      <p class="lead" style="margin-bottom:6px"><span class="tag">lr</span>(learning rate · <b>학습률</b>)은 한 번의 갱신에서 <b>가중치를 얼마나 크게 움직일지</b> 정하는 보폭입니다. 너무 크면 최적점을 지나쳐 발산·진동하고, 너무 작으면 수렴이 느립니다.</p>
+      <ul>
+        <li><b>1단계</b> · 20클래스·20에폭으로 후보 빠른 선별</li>
+        <li><b>2단계</b> · 최적 <span class="tag">lr=3e-4</span>로 100클래스 본 학습</li>
+      </ul>
+    </div>
+    <div class="col" style="width:46%">
+      <div class="imgwrap" style="margin-top:6px">
+        <img src="output/report_assets/chart_lr_comparison.png" style="max-height:330px">
+        <div class="caption">스케일에 잘 전이되는 lr·batch·dropout을 1단계에서 확정</div>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">10</div>
+</div>
+
+<!-- 8. 결과 - 분류 성능 -->
+<div class="slide">
+  <h1 class="slide-title">3. 결과 (Results) — 분류 성능</h1>
+  <h2 class="section">평가지표 선정 이유</h2>
+  <ul>
+    <li><b>Top-1 정확도(주 지표)</b> · 약품 식별은 정오답이 명확한 다중분류 → 정확도가 성능을 직관적으로 표현.</li>
+    <li><b>검증 손실(모델 저장 기준)</b> · 정확도는 임계값에서 둔감 → 확률 분포 품질을 보는 val_loss를 best 모델 선정에 사용.</li>
+  </ul>
+  <div class="cols" style="margin-top:6px">
+    <div class="col" style="width:56%">
+      <div class="imgwrap">
+        <img src="output/loss_curve.png" style="max-height:300px">
+        <div class="caption">100클래스 본 학습 — 과적합 없이 매끄럽게 수렴 (epoch 32 조기종료)</div>
+      </div>
+    </div>
+    <div class="col" style="width:44%; vertical-align:middle">
+      <table class="data">
+        <tr><th>지표</th><th>값</th></tr>
+        <tr><td>최고 검증 정확도</td><td>99.18% (epoch 24)</td></tr>
+        <tr><td>검증 손실</td><td>0.0935</td></tr>
+        <tr><td>조기종료</td><td>epoch 32</td></tr>
+        <tr><td>학습 시간</td><td>약 7분 (32 epoch)</td></tr>
+      </table>
+      <p class="lead" style="margin-top:12px; font-size:14px"><b class="danger">단, 이 수치는 누수 분할 기준의 낙관값</b>입니다. 누수 없는 사진 단위 분할로 재학습하고 <b>독립 test셋</b>에서 Top-1/Top-5·Macro F1·혼동행렬로 재측정합니다(다음 장).</p>
+    </div>
+  </div>
+  <div class="page-num">11</div>
+</div>
+
+<!-- 9. 결과 - 병용금기 검출 -->
+<div class="slide">
+  <h1 class="slide-title">3-1. 결과 (Results) — 병용금기 검출</h1>
+  <p class="lead">추론 결과(class_idx)를 <span class="tag">class_map.json</span>의 성분명으로 변환하고, 복합 성분을 분리·정규화한 뒤 금기 DB와 매칭합니다. 데이터셋 118종 × 금기 DB 교차 검색 결과 <b>실제 금기 2쌍</b>을 검출했습니다.</p>
+  <div class="cols" style="margin-top:4px">
+    <div class="col" style="width:52%">
+      <div class="imgwrap">
+        <img src="output/report_assets/chart_contraindication_network.png" style="max-height:300px">
+        <div class="caption">아질렉트정(rasagiline)이 두 쌍 모두에 관여 — 검출의 핵심 노드</div>
+      </div>
+    </div>
+    <div class="col" style="width:48%; vertical-align:middle">
+      <table class="data">
+        <tr><th>약물 A</th><th>약물 B</th><th>위험</th></tr>
+        <tr class="warn-row"><td>아질렉트정<br>(rasagiline)</td><td>울트라셋이알<br>(tramadol)</td><td>세로토닌증후군·<br>고혈압위기</td></tr>
+        <tr class="warn-row"><td>액티프롤정<br>(pseudoephedrine)</td><td>아질렉트정<br>(rasagiline)</td><td>고혈압·빈맥</td></tr>
+      </table>
+      <p class="lead" style="margin-top:12px; font-size:14px">분류 → 성분명 변환 → 금기 조회로 이어지는 <b>end-to-end 흐름</b>이 성립함을 보였습니다. 매칭 로직은 검증셋(16케이스)에서 정확도 <b>0.625→1.000</b>으로 강화했습니다(다음 장).</p>
+    </div>
+  </div>
+  <div class="page-num">12</div>
+</div>
+
+<!-- 10. 결과 - 실행 예시 -->
+<div class="slide">
+  <h1 class="slide-title">3-2. 결과 (Results) — 실행 예시: 금기 약물 경고</h1>
+  <p class="lead">약품 3개가 담긴 복합 사진을 입력하면, 각 약품을 인식하고 <b>어떤 제품이 함께 위험한지와 그 이유까지</b> 출력합니다.</p>
+  <div class="code">
+    <div><span class="cmd">$</span> python src/main.py predict --photo combo.png --json combo.json</div>
+    <div class="dim">[추론] 복합 사진에서 3개 크롭 추출 · 모델 로드 완료 (val_acc=0.9918)</div>
+    <div class="rule">============================================================</div>
+    <div class="sec">[결과] 인식된 약물</div>
+    <div>- 아질렉트정(라사길린메실산염)        (신뢰도 99.4%)</div>
+    <div>- 울트라셋이알서방정                  (신뢰도 98.7%)</div>
+    <div>- 액티프롤정 60mg/PTP                 (신뢰도 97.9%)</div>
+    <div style="margin-top:8px"><span class="warnhd">[경고] 병용금기 조합 발견! (2건)</span></div>
+    <div style="margin-top:5px"><span class="prod">아질렉트정</span> &lt;-&gt; <span class="prod">울트라셋이알서방정</span></div>
+    <div>&nbsp;&nbsp;성분: rasagiline &lt;-&gt; tramadol</div>
+    <div>&nbsp;&nbsp;<span class="risk">위험: 고혈압위기, 세로토닌증후군 발생 위험 증가</span></div>
+    <div style="margin-top:7px"><span class="prod">액티프롤정 60mg</span> &lt;-&gt; <span class="prod">아질렉트정</span></div>
+    <div>&nbsp;&nbsp;성분: pseudoephedrine &lt;-&gt; rasagiline</div>
+    <div>&nbsp;&nbsp;<span class="risk">위험: 고혈압, 빈맥 유발</span></div>
+    <div class="rule">============================================================</div>
+  </div>
+  <p class="lead" style="margin-top:11px; font-size:14px">위험 사유는 식약처 병용금기 DB(<span class="tag">1,628쌍</span>)의 실제 임상 근거를 그대로 인용해, 사용자가 <b>왜 위험한지</b>를 바로 확인할 수 있습니다.</p>
+  <div class="page-num">13</div>
+</div>
+
+<!-- 11. 결론 -->
+<div class="slide">
+  <h1 class="slide-title">4. 결론 (Conclusion)</h1>
+  <h2 class="section">요약 및 인사이트</h2>
+  <ul>
+    <li><b>문제 재정의의 힘</b> · 모델을 키우기 전에 객체 검출을 <b>전처리 크롭을 통한 분류 문제로 환원</b>한 것이 가장 큰 성능·효율 이득을 냈습니다.</li>
+    <li><b>병목은 연산이 아니라 I/O</b> · GPU 활용도를 높인 건 모델 변경이 아니라 데이터 로딩 병렬화(<span class="tag">num_workers=4</span>)였습니다.</li>
+    <li><b>지표 해석</b> · 학습 시 Dropout으로 인한 train/val 지표 역전, val_loss 기준 best 저장 등 학습 로그를 정확히 해석해 신뢰성 있게 모델을 선택했습니다.</li>
+  </ul>
+  <h2 class="section">달성 요약</h2>
+  <div class="summary">
+    <div class="cell"><div class="num">100</div><div class="lbl">분류 클래스</div></div>
+    <div class="cell"><div class="num">70/15/15</div><div class="lbl">누수 없는 분할</div></div>
+    <div class="cell"><div class="num">2쌍</div><div class="lbl">금기 검출</div></div>
+    <div class="cell"><div class="num">8.83M</div><div class="lbl">파라미터</div></div>
+  </div>
+  <h2 class="section">기대효과 및 의의</h2>
+  <ul>
+    <li><b>복약 안전 향상</b> · 사진 한 장으로 비전문가도 위험한 약 조합을 즉시 확인 → 오남용·약물 상호작용 사고 예방에 기여할 수 있습니다.</li>
+    <li><b>확장 가능한 구조</b> · 분류 클래스와 금기 DB를 넓히면, 더 많은 약품·금기 조합으로 그대로 확장되는 파이프라인입니다.</li>
+    <li><b>이미지 → 의미 연결</b> · 단순 이미지 분류에 그치지 않고, 분류 결과를 임상 지식(금기 DB)과 연결해 <b>실제 의사결정에 쓰이는 정보</b>로 바꿨다는 점이 핵심 의의입니다.</li>
+  </ul>
+  <div class="page-num">14</div>
+</div>
+
+<!-- 12. 한계점 → 해결 -->
+<div class="slide">
+  <h1 class="slide-title">5. 한계점 진단 → 해결</h1>
+  <p class="lead">초기 파이프라인의 한계점을 진단하고, 각 항목을 코드로 해결했습니다.</p>
+  <table class="data" style="margin-top:6px">
+    <tr><th style="width:42%">한계점</th><th>해결</th></tr>
+    <tr><td><b class="danger">데이터 누수</b> · 무작위 분할로 같은 사진 변형이 train·val에 공존</td><td>사진(combo) 단위 그룹 분할 → 분할 간 공유 사진 <b>0건</b></td></tr>
+    <tr><td><b>독립 테스트셋 부재</b> · 일반화 성능 평가 불가</td><td>train/val/test <b>70/15/15</b> 분리, test 전용 평가</td></tr>
+    <tr><td><b>금기 검출 검증 약함</b> · 부분문자열 오매칭</td><td>성분 단위 토큰 매칭 + 검증셋 정확도 <b>0.625→1.000</b></td></tr>
+    <tr><td><b>평가지표 부족</b> · Top-1만 기록</td><td>혼동행렬 · Macro F1 · Top-5 추가</td></tr>
+    <tr><td><b>클래스 불균형</b> · 최다/최소 7.0배 미보정</td><td>가중 손실(기본) · focal loss · oversampling</td></tr>
+  </table>
+  <div class="page-num">15</div>
+</div>
+
+<!-- 12-1. 개선 결과 -->
+<div class="slide">
+  <h1 class="slide-title">5-1. 개선 결과 (재현 가능한 검증)</h1>
+  <div class="cols">
+    <div class="col" style="width:50%">
+      <h2 class="section">분할 — 누수 차단 + 테스트셋</h2>
+      <table class="data">
+        <tr><th>분할</th><th>이미지</th><th>클래스</th></tr>
+        <tr><td>train</td><td>30,444</td><td>100</td></tr>
+        <tr><td>val</td><td>6,479</td><td>100</td></tr>
+        <tr><td>test</td><td>6,427</td><td>100</td></tr>
+        <tr class="warn-row"><td>공유 사진</td><td><b>0건</b></td><td>—</td></tr>
+      </table>
+      <h2 class="section" style="margin-top:10px">불균형 (7.0배)</h2>
+      <p class="lead" style="font-size:14px">가중 손실·focal·oversampling을 플래그로 전환. 소수 클래스 성능은 Macro F1로 확인.</p>
+    </div>
+    <div class="col" style="width:50%">
+      <h2 class="section">금기 매칭 검증 (16케이스)</h2>
+      <table class="data">
+        <tr><th>방식</th><th>Precision</th><th>Recall</th><th>Acc</th></tr>
+        <tr><td>기존 substring</td><td>0.636</td><td>0.778</td><td>0.625</td></tr>
+        <tr class="warn-row"><td>개선 token</td><td><b>1.000</b></td><td><b>1.000</b></td><td><b>1.000</b></td></tr>
+      </table>
+      <p class="lead" style="font-size:13px; margin-top:6px"><span class="tag">ephedrine↔pseudoephedrine</span> 류 오경보 제거</p>
+      <h2 class="section" style="margin-top:10px">test 최종 지표 <span style="font-size:12px; color:#8A9A97">(재학습 후 5_evaluate.py 산출)</span></h2>
+      <p class="lead" style="font-size:14px">Top-1 · Top-5 · Macro F1 · 혼동행렬 → <span class="tag">output/eval/</span>. 누수 제거 효과를 정직하게 재측정.</p>
+    </div>
+  </div>
+  <div class="page-num">16</div>
+</div>
+
+<!-- 13. Q&A -->
+<div class="slide title-slide">
+  <div class="rule"></div>
+  <h1>감사합니다 · Q&amp;A</h1>
+  <div class="meta"><b>CNN 기반 약품 이미지 분류 및 병용금기 검출 시스템</b> · 딥러닝 Team Project 06</div>
+</div>
+
+</body>
+</html>

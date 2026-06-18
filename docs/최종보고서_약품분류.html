@@ -1,0 +1,583 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>CNN 기반 약품 이미지 분류 및 병용금기 검출 시스템</title><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"><style>
+  @font-face { font-family:'Pretendard'; font-weight:400; src:url('assets/fonts/Pretendard-Regular.ttf'); }
+  @font-face { font-family:'Pretendard'; font-weight:500; src:url('assets/fonts/Pretendard-Medium.ttf'); }
+  @font-face { font-family:'Pretendard'; font-weight:600; src:url('assets/fonts/Pretendard-SemiBold.ttf'); }
+  @font-face { font-family:'Pretendard'; font-weight:700; src:url('assets/fonts/Pretendard-Bold.ttf'); }
+  @font-face { font-family:'Pretendard'; font-weight:800; src:url('assets/fonts/Pretendard-ExtraBold.ttf'); }
+
+  :root{
+    --ink:#2A3B3A; --primary:#115E59; --primary2:#1F4D49; --teal:#3C8C82;
+    --soft:#EDF4F2; --danger:#B23A36; --gray:#8A9A97; --line:#D5E0DD; --tagbg:#EEF2F1;
+    --bg:#F4F7F6;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { background:var(--bg); font-family:'Pretendard',sans-serif; color:var(--ink); }
+  body { font-size:16px; line-height:1.85; letter-spacing:0.1px; }
+
+  .wrap { max-width:880px; margin:0 auto; padding:56px 24px 96px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:14px;
+    padding:56px 60px; box-shadow:0 8px 30px rgba(17,94,89,0.07); }
+
+  h1 { font-size:30px; font-weight:800; color:var(--primary); line-height:1.4; margin:0 0 6px; }
+  h2 { font-size:21px; font-weight:700; color:var(--primary); margin:46px 0 12px;
+    padding-bottom:10px; border-bottom:3px solid var(--teal); }
+  h3 { font-size:17.5px; font-weight:700; color:var(--primary2); margin:30px 0 10px;
+    padding-left:12px; border-left:4px solid var(--teal); }
+  p { margin:13px 0; font-size:15.5px; line-height:1.82; }
+  ul,ol { margin:13px 0; padding-left:24px; }
+  li { margin:9px 0; line-height:1.74; font-size:15px; }
+  li > ul, li > ol { margin-top:7px; }
+  strong, b { font-weight:700; color:var(--primary2); }
+  hr { border:0; border-top:1px solid var(--line); margin:40px 0; }
+
+  blockquote { margin:18px 0; padding:12px 20px; background:var(--soft);
+    border-left:4px solid var(--teal); border-radius:8px; color:var(--primary2); }
+
+  table { border-collapse:collapse; width:100%; margin:20px 0; font-size:14px;
+    box-shadow:0 0 0 1px var(--line); border-radius:8px; overflow:hidden; }
+  th, td { border:1px solid var(--line); padding:10px 14px; text-align:left; vertical-align:top; }
+  th { background:var(--soft); color:var(--primary2); font-weight:700; }
+  tr:nth-child(even) td { background:#FAFCFB; }
+
+  code { font-family:'Courier New',monospace; background:var(--tagbg); color:var(--primary2);
+    padding:2px 6px; border-radius:4px; font-size:0.88em; }
+  pre { background:#F4F7F6; border:1px solid var(--line); color:var(--ink);
+    padding:16px 20px; border-radius:8px; overflow-x:auto; line-height:1.7; margin:16px 0; }
+  pre code { background:none; color:inherit; padding:0; }
+
+  .doc-meta { color:var(--gray); font-size:14px; margin-bottom:10px; }
+
+  @media (max-width:640px){
+    .card{ padding:30px 22px; } body{ font-size:15px; }
+    h1{ font-size:25px; } h2{ font-size:19px; }
+  }
+</style></head><body><div class="wrap"><div class="card"><h1 id="cnn">CNN 기반 약품 이미지 분류 및 병용금기 검출 시스템</h1>
+<p><strong>과목:</strong> 딥러닝 · <strong>팀 프로젝트(team_project_06)</strong> · 최종 보고서</p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>제출 형식</td>
+<td>최종 PPT 자료 (본 md는 내용 초안)</td>
+</tr>
+<tr>
+<td>제출 마감</td>
+<td>6월 17일 자정</td>
+</tr>
+<tr>
+<td>발표</td>
+<td>6월 17일, 10분 발표 + 5분 질의응답</td>
+</tr>
+<tr>
+<td>사용 언어/프레임워크</td>
+<td>Python · PyTorch</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>※ 〔확인 필요〕로 표시된 항목은 임의로 채우지 않았습니다. 팀원·역할 정보는 사실 확인 후 채워 주세요. (클래스 선정 기준, 병용금기 검출 결과 등은 추가된 계획서·코드에서 확인해 반영했습니다.)</p>
+</blockquote>
+<hr />
+<h2 id="1">1. 소개</h2>
+<h3 id="_1">◆ 배경</h3>
+<p>의약품은 함께 복용하면 안 되는 <strong>병용금기(竝用禁忌)</strong> 조합이 존재하며, 국내에서도 식약처·HIRA가 다수의 금기 조합을 관리한다. 본 프로젝트는 이러한 금기 조합 <strong>1,628쌍</strong>(엑셀 DB)을 활용하되, 사용자가 약품의 코드명을 일일이 입력하지 않고 <strong>사진만으로 약품을 식별</strong>한 뒤 자동으로 금기 여부를 확인할 수 있게 하는 것을 출발점으로 삼았다.</p>
+<h3 id="_2">◆ 문제 제기</h3>
+<p>병용금기 확인의 선행 과제는 <strong>사진 속 개별 약품을 정확히 식별하는 것</strong>이다. 한 장의 사진에 여러 약품이 함께 찍히고 촬영 각도도 제각각이므로, 이를 그대로 다루면 객체 검출(object detection) 문제가 되어 수업 범위를 벗어난다. 따라서 문제를 <strong>개별 약품 이미지 분류(classification)</strong> 로 재정의할 필요가 있었다.</p>
+<h3 id="_3">◆ 가설</h3>
+<ol>
+<li>다중 약품 사진을 bbox 좌표로 크롭하여 단일 약품 이미지로 전처리하면, CNN 분류 문제로 환원할 수 있다.</li>
+<li>수업에서 학습한 표준 CNN 구조(Conv–BN–ReLU–Pool 반복 + FC)만으로도 약품 100종을 실용적 수준으로 분류할 수 있다.</li>
+<li>분류 결과를 성분명으로 변환해 병용금기 DB와 대조하면, 금기 조합 자동 검출 파이프라인을 구성할 수 있다.</li>
+</ol>
+<h3 id="_4">◆ 목표</h3>
+<ul>
+<li>약품 <strong>100개 클래스</strong>를 대상으로 한 CNN 이미지 분류기 구현 및 학습</li>
+<li>학습된 분류기를 <strong>병용금기 DB 조회 파이프라인</strong>과 연결해 end-to-end 흐름 설계</li>
+<li>정확도 극대화보다 <strong>수업에서 배운 CNN 원리(전방향 전파·역전파·정규화·조기 종료 등)의 적용</strong>을 입증</li>
+</ul>
+<hr />
+<h2 id="2">2. 방법</h2>
+<h3 id="_5">◆ 데이터 설명</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>원천 데이터</td>
+<td>약품 사진 약 30GB (원본 976×1280), 사진 1장당 약품 4종 + 다중 촬영 각도</td>
+</tr>
+<tr>
+<td>주석(annotation)</td>
+<td>COCO 포맷 JSON 라벨 <strong>46,117개</strong>, 약품별 bounding box</td>
+</tr>
+<tr>
+<td>고유 약품 코드</td>
+<td><strong>118종</strong> 확인 → 이 중 <strong>100종</strong> 학습 클래스로 선정</td>
+</tr>
+<tr>
+<td>전처리 결과</td>
+<td>bbox 크롭으로 단일 약품 이미지 <strong>43,350장</strong> 생성</td>
+</tr>
+<tr>
+<td>입력 해상도</td>
+<td>128 × 128 (이중선형 보간 리사이즈)</td>
+</tr>
+<tr>
+<td>정규화</td>
+<td>ImageNet 통계 (μ=0.485/0.456/0.406, σ=0.229/0.224/0.225)</td>
+</tr>
+<tr>
+<td>학습/검증/테스트 분할</td>
+<td><strong>사진(combo) 단위 그룹 분할</strong> 70/15/15, seed 42 (<code>0_split.py</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>전처리에서 <strong>직사각형 bbox 크롭</strong>을 채택했다. 약품의 정밀 외곽선 추출(누끼)은 분류 정확도 향상에 기여가 작은 반면 비용이 커, CNN 분류에는 직사각형 크롭으로 충분하다고 판단했다. 정규화에 ImageNet 통계를 사용한 이유는, 약품도 실세계 색상을 가지므로 사전학습 통계가 수렴에 유리하기 때문이다.</p>
+<p><strong>ImageNet 통계란.</strong> ImageNet(약 120만 장 규모의 대형 이미지 데이터셋) 전체 픽셀값을 RGB 채널별로 미리 구해 둔 평균(μ)과 표준편차(σ)로, 사실상 "자연 이미지 픽셀의 대표 분포"를 요약한 값이다. 입력 이미지를 채널별로 <code>x_norm = (x − μ) / σ</code> 로 변환하면 각 채널 분포가 <strong>평균 0·표준편차 1 근처</strong>로 맞춰져, 학습 초기에 값의 크기가 들쭉날쭉하지 않아 경사하강이 안정적이고 수렴이 빨라진다. 약품도 실세계 색을 가진 자연 이미지이므로 별도 통계를 새로 구하지 않고 검증된 ImageNet 통계(μ=0.485/0.456/0.406, σ=0.229/0.224/0.225)를 그대로 적용했다. 이는 입력을 일정한 분포로 맞추는 <strong>학습 전 표준 전처리</strong>이며, 모델 내부에서 미니배치마다 분포를 정규화하는 BatchNorm과는 별개의 단계다.</p>
+<p><strong>COCO 형식이란.</strong> 라벨 JSON은 객체 검출·분할용 표준 주석 형식인 COCO(Common Objects in Context) 포맷을 따른다. 핵심은 각 약품의 위치를 <code>"bbox": [x_min, y_min, width, height]</code> 네 값으로 표기하는 방식으로, 각각 박스 좌상단의 x·y 픽셀 좌표와 너비·높이를 뜻한다. 본 프로젝트는 이 좌표로 원본 사진에서 <code>I[y_min:y_min+h, x_min:x_min+w]</code> 영역을 잘라 개별 약품 이미지를 생성했다. 즉 COCO bbox가 "검출 문제 → 분류 문제" 전환의 출발점이다(정밀 외곽선을 담는 <code>segmentation</code> 필드는 사용하지 않았다).</p>
+<p><strong>분할 방식(중요).</strong> 한 장의 원본 사진(combo)에는 약 3~4종이 함께 찍혀 있고, 같은 사진을 각도·조명만 바꿔 촬영한 변형이 사진 하나당 평균 3장 존재한다(전역 고유 사진 3,988장 → 크롭 43,350장). 따라서 이미지를 무작위로 나누면 거의 동일한 변형이 train과 검증에 동시에 들어가, 모델이 약이 아니라 사진의 배경·조명을 외우는 데이터 누수가 생긴다. 이를 막기 위해 <strong>파일명의 사진 식별자(combo)를 그룹 키로 삼아 한 사진의 모든 크롭을 train/val/test 중 한 곳에만 배정</strong>했다. 그 결과 train 30,444장 / val 6,479장 / test 6,427장으로 나뉘었고, 세 분할 사이에 공유되는 사진은 <strong>0건</strong>이며 100개 클래스가 세 분할에 모두 존재한다. test는 학습·검증에 일절 사용하지 않고 최종 평가에만 쓴다.</p>
+<h3 id="_6">◆ 학습 클래스 선정 기준</h3>
+<p>고유 약품 코드 118종 중 100종을 다음 우선순위로 선정했다.</p>
+<ol>
+<li><strong>병용금기 쌍에 등장하는 약물 우선 포함</strong> — 프로젝트 최종 목표가 금기 조합 검출이므로, 데이터셋 내 금기 약물(아질렉트정 등 3종 확정)을 반드시 학습 클래스에 포함.</li>
+<li><strong>나머지는 데이터 수량 기준 상위 클래스 선택</strong> — 크롭 이미지 수가 많은 약물 순으로 채워 학습 안정성을 확보.</li>
+</ol>
+<p><strong>왜 100개로 나눴나(118종 중 18종 제외).</strong> 클래스 수를 100으로 고정한 것은 두 가지 때문이다. 첫째, 크롭 수가 극히 적은 하위 클래스를 포함하면 해당 클래스의 학습·검증 표본이 부족해 정확도 추정이 불안정해지고 불균형이 심화된다. 둘째, 100이라는 라운드 넘버는 클래스 불균형 비율·Macro F1 등 지표를 보고하고 모듈을 설계할 때 기준점으로 다루기 쉽다. 따라서 금기 약물을 먼저 확보한 뒤, 데이터가 충분한 상위 클래스로 100을 채우고 표본이 빈약한 18종은 제외했다. 이는 분류기와 최종 검출 목표를 일관되게 연결하는 선택이다.</p>
+<h3 id="dl">◆ DL 모델 선정 이유</h3>
+<ul>
+<li><strong>CNN 선정 근거:</strong> 입력이 영상 데이터이며, 합성곱은 지역적 패턴(글자·색·형태)을 가중치 공유로 효율적으로 학습하고 평행이동에 강건하다. 약품 식별은 표면의 각인·색·형태 같은 국소 특징에 의존하므로 CNN이 적합하다.</li>
+<li><strong>구조 — DrugCNN:</strong> <code>[Conv(3×3, pad=1) → BatchNorm → ReLU → MaxPool(2×2)]</code> 블록 4개를 쌓아 점진적으로 추상적 특징을 추출하고, FC + Dropout으로 분류한다. 수업에서 다룬 표준 CNN 블록 구성(CONV→ReLU→POOL 반복)을 그대로 따랐다.</li>
+<li>채널·해상도 변화: <code>(3,128,128) → (32,64,64) → (64,32,32) → (128,16,16) → (256,8,8)</code> → Flatten(16,384) → FC1(512)+Dropout → FC2(100)</li>
+<li><strong>규모:</strong> 약 <strong>8.83M 파라미터</strong> (대부분이 FC1의 16,384×512에 집중, 최종 가중치 파일 33.7MB).</li>
+</ul>
+<h3 id="_7">◆ 적용 방법 (학습 설정)</h3>
+<table>
+<thead>
+<tr>
+<th>구성 요소</th>
+<th>선택</th>
+<th>근거</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>손실 함수</td>
+<td><strong>가중 CrossEntropyLoss</strong>(기본) / Focal / 일반 CE 선택</td>
+<td>클래스 불균형(최다/최소 7.0배) 보정 — 빈도 역수 가중</td>
+</tr>
+<tr>
+<td>불균형 대응</td>
+<td>weighted loss · focal loss · oversampling(WeightedRandomSampler)</td>
+<td><code>3_train.py</code>에서 <code>--loss</code>, <code>--sampler</code> 플래그로 전환</td>
+</tr>
+<tr>
+<td>최적화기</td>
+<td>Adam</td>
+<td>적응적 학습률로 빠르고 안정적인 수렴</td>
+</tr>
+<tr>
+<td>정규화</td>
+<td>Dropout 0.5 + BatchNorm</td>
+<td>과적합 억제, 앙상블 효과 및 학습 안정화</td>
+</tr>
+<tr>
+<td>데이터 증강</td>
+<td>Random Rotation, Color Jitter 등</td>
+<td>촬영 각도·조명 변화에 대한 일반화</td>
+</tr>
+<tr>
+<td>조기 종료</td>
+<td>patience = 8 (val_loss 기준)</td>
+<td>검증 오차가 더는 개선되지 않으면 과적합 진입 전 중단</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">◆ 아키텍처·설정 설계 근거 (심화)</h3>
+<p>위 구조와 설정에서 자주 나오는 "왜 그렇게 정했나"를 정리한다. 일부는 실험으로 입증한 값이고, 일부는 설계 관례에서 따라 나온 값이라 그 성격을 구분해 기술한다.</p>
+<p><strong>① 블록을 4개로 정한 근거.</strong> 블록 수는 별도 비교 실험이 아니라 입력 해상도와 산술적으로 맞물려 결정됐다. 블록마다 MaxPool(2×2)이 가로·세로를 절반으로 줄이므로, 입력 128을 2로 4번 나누면 정확히 <code>128 → 64 → 32 → 16 → 8</code>이 된다. 4단계면 얕은 층의 저수준 특징(획·테두리·색)에서 깊은 층의 고수준 특징(약품 형태·각인 패턴)까지 약품 식별에 필요한 추상화 수준에 도달한다. 더 깊게 쌓으면 특징맵이 4×4·2×2로 과도하게 작아져 공간 정보가 뭉개지고, 덜 쌓으면 Flatten 차원이 커져 분류기 파라미터가 급증한다.</p>
+<p><strong>② 8×8의 성격(증명된 최적값이 아님).</strong> 최종 특징맵 8×8은 "가장 이상적임을 실험으로 증명한 값"이 아니라 <strong>"입력 128 + 블록 4개"를 정하면 자동으로 따라 나오는 값</strong>이다. 다른 크기(6×6, 16×16 등)와의 비교 실험은 수행하지 않았다. 다만 8×8은 공간 정보 보존과 Flatten 차원(256×8×8=16,384)의 크기 사이에서 균형이 무난한 지점이라는 정성적 판단은 성립한다. 향후 6×6·8×8·16×16을 비교하면 이 선택에 정량 근거를 추가할 수 있다.</p>
+<p><strong>③ 채널 수 규칙과 메모리 근거(32→64→128→256).</strong> 채널 수는 "해상도가 줄면 채널을 늘려 표현력을 보상한다"는 표준 설계 관례를 따랐다. MaxPool로 공간 원소가 1/4로 줄 때 채널을 2배로 늘리면 정보량 감소를 채널(특징 종류)의 다양성으로 메운다. 얕은 층은 저수준 특징이라 종류가 적어 32로 충분하고, 깊어질수록 특징 조합이 폭증해 더 많은 채널(256)이 필요하다. 또한 32·64·128·256처럼 <strong>2의 거듭제곱</strong>을 쓰는 이유는 메모리·연산에 유리하기 때문이다. GPU·CPU의 메모리 접근과 벡터 연산은 2의 거듭제곱 크기에서 정렬(alignment)·타일링이 잘 맞아, 같은 파라미터 수라도 텐서 연산 처리량과 캐시 효율이 좋다. 임의의 값(예: 50, 100)보다 커널 구현이 최적화된 경로를 타기 쉽다.</p>
+<table>
+<thead>
+<tr>
+<th>단계</th>
+<th>해상도</th>
+<th>채널</th>
+<th>특징맵 원소 수</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Block 1</td>
+<td>64×64</td>
+<td>32</td>
+<td>131,072</td>
+</tr>
+<tr>
+<td>Block 2</td>
+<td>32×32</td>
+<td>64</td>
+<td>65,536</td>
+</tr>
+<tr>
+<td>Block 3</td>
+<td>16×16</td>
+<td>128</td>
+<td>32,768</td>
+</tr>
+<tr>
+<td>Block 4</td>
+<td>8×8</td>
+<td>256</td>
+<td>16,384</td>
+</tr>
+</tbody>
+</table>
+<p><strong>④ 채널 증가와 과적합의 관계, 그리고 통제 논리.</strong> 채널 증가는 곧 파라미터 증가이므로 원리상 과적합 위험을 키운다. 다만 본 모델 파라미터(8.83M)의 대부분은 Conv 채널이 아니라 <strong>FC1(16,384×512 ≈ 840만)</strong>에 집중돼 있어, 과적합의 주된 출처는 FC 층이다. 오히려 채널을 키워 8×8까지 압축한 덕분에 FC 입력 차원(16,384)이 그 선에서 억제된 면도 있다. 과적합은 다음 장치로 통제했다: FC1 뒤의 <strong>Dropout(0.5)</strong>, 채널 분포를 정규화하는 <strong>BatchNorm</strong>, 회전·색 변화 <strong>데이터 증강</strong>, 그리고 <strong>조기 종료</strong>. 실제로 검증 정확도 99.18%에서 학습·검증 격차가 크게 벌어지지 않아, 이 설정에서 과적합은 통제된 것으로 본다(§3).</p>
+<p><strong>⑤ FC(완전연결층)의 역할.</strong> Conv가 이미지를 지역적으로 본다면, FC(Fully Connected)는 모든 특징을 종합해 최종 판단을 내리는 층이다. Conv 블록이 추출한 특징맵을 1차원으로 펼친 16,384개 값을 받아, <strong>FC1(16,384→512, +ReLU+Dropout)</strong>이 특징을 압축·종합하고 <strong>FC2(512→100)</strong>가 각 약품 클래스의 점수(로짓)를 출력한다. 모델 파라미터 대부분이 여기에 몰리는 것은 FC1의 16,384×512 연결 때문이다.</p>
+<p><strong>⑥ 각 채널이 학습하는 특징(해석상 추정).</strong> 본 프로젝트에서 특정 채널이 어떤 패턴에 반응하는지 feature map 시각화로 직접 확인하지는 않았으므로, 아래는 CNN 일반 원리에 근거한 추정이다. 얕은 층(Block 1~2, 32·64채널)의 채널은 대체로 방향성 에지·색 대비·단순 질감 같은 <strong>저수준 보편 특징</strong>에 반응하고, 깊은 층(Block 3~4, 128·256채널)의 채널은 이를 조합한 <strong>고수준·과제 특화 특징</strong>(알약의 둥근 윤곽, 캡슐 이음새, 표면 각인 패턴, 색+형태 조합)에 반응하는 경향이 있다. 다만 채널 하나가 사람이 이름 붙일 개념 하나에 일대일로 대응하지는 않으며, 여러 채널이 분산·중첩해 한 개념을 표현하는 경우가 많다. <code>best_model.pth</code>로 feature map을 시각화하면 이 추정을 관찰로 전환할 수 있다(향후 과제).</p>
+<p><strong>⑦ 조기 종료 시점(patience=8)의 근거.</strong> 조기 종료는 "검증 손실이 8에폭 연속 개선되지 않으면 중단"하는 규칙이다(개선 기준은 일관성을 위해 항상 일반 CE로 측정). patience=8 역시 격자 탐색으로 최적화한 값이 아니라, 두 위험 사이의 균형을 잡은 관례적 설정이다. 값이 너무 작으면 손실이 일시적으로 정체하는 평탄 구간에서 성급히 멈춰 <strong>과소적합</strong>의 위험이 있고, 너무 크면 검증 손실이 이미 악화된 뒤에도 학습을 끌어 <strong>과적합과 연산 낭비</strong>가 생긴다. 본 학습은 <code>lr=3e-4</code>에서 검증 정확도가 epoch 2에 이미 99%에 도달할 만큼 수렴이 빨라, 8에폭의 여유는 평탄 구간을 통과시키되 과적합 진입 전에 멈추기에 충분했다.</p>
+<h3 id="2_1">◆ 파라미터 결정 과정 (2단계 하이퍼파라미터 탐색)</h3>
+<p>스케일에 <strong>잘 전이되는 값(learning rate, batch size, dropout, augmentation)</strong> 과 <strong>전이되지 않는 값(epoch 수, 조기 종료 임계, 클래스 수 민감 설정)</strong> 을 구분하고, 다음 2단계로 진행했다.</p>
+<ul>
+<li><strong>1단계 — 후보 선별:</strong> 20클래스 · 20에폭으로 빠르게 비교해 나쁜 후보 제거</li>
+<li><code>lr=1e-3</code> → 최고 val_acc 99.21% (epoch 17)</li>
+<li><code>lr=3e-4</code> → 최고 val_acc <strong>99.37%</strong> (epoch 6·9), epoch 2에 이미 99% 도달 → <strong>채택</strong></li>
+<li><code>lr=1e-4</code> → 20에폭 기준 과소수렴 우려로 제외</li>
+<li><strong>2단계 — 본 학습:</strong> 확정한 <code>lr=3e-4</code>, batch=128, dropout=0.5로 100클래스 학습</li>
+</ul>
+<p>학습 속도 또한 최적화했다. 초기 병목은 GPU가 아니라 <strong>이미지 파일 I/O</strong>였으며, <code>num_workers=4</code> + <code>persistent_workers=True</code>로 데이터 로딩을 병렬화해 에폭당 약 13초로 단축했다.</p>
+<hr />
+<h2 id="3">3. 결과</h2>
+<h3 id="_9">◆ 사용한 평가지표와 선정 이유</h3>
+<p>최종 평가는 <strong>독립 test split</strong> 에서만 수행하며(<code>5_evaluate.py</code>), 정확도 한 가지에 의존하지 않도록 지표를 확장했다.</p>
+<ul>
+<li><strong>Top-1 / Top-5 Accuracy:</strong> Top-1은 최종 예측의 정확도, Top-5는 정답이 상위 5개 후보 안에 드는 비율이다. 약품처럼 외형이 비슷한 클래스가 많을 때 Top-5는 "거의 맞힌" 정도를 보여 준다.</li>
+<li><strong>Macro F1-score:</strong> 클래스별 F1을 단순 평균한 값. 클래스 불균형(7.0배) 환경에서 다수 클래스에 가려지는 소수 클래스 성능을 동등하게 반영하므로, 정확도보다 일반화 성능을 정직하게 보여 준다(Weighted F1도 함께 산출).</li>
+<li><strong>혼동행렬(Confusion Matrix):</strong> 어떤 약품 쌍이 서로 헷갈리는지 100×100 행렬로 시각화해, 외형이 유사한 약품의 오분류 패턴을 진단한다.</li>
+<li><strong>검증 손실(Validation Loss):</strong> 학습 중 best 모델 저장 및 조기 종료 기준으로 사용한다.</li>
+</ul>
+<h3 id="_10">◆ 검증 결과</h3>
+<p><strong>100클래스 본 학습 (최종 모델)</strong></p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>최고 검증 정확도</td>
+<td><strong>99.18%</strong> (epoch 24)</td>
+</tr>
+<tr>
+<td>해당 검증 손실</td>
+<td>0.0935</td>
+</tr>
+<tr>
+<td>조기 종료</td>
+<td>epoch 32 종료 (patience=8)</td>
+</tr>
+<tr>
+<td>학습 시간</td>
+<td>에폭당 약 13초 × 32 ≈ 약 7분</td>
+</tr>
+<tr>
+<td>최종 가중치</td>
+<td><code>best_model.pth</code> (33.7MB, classes=100, val_acc=0.9918, epoch=24 확인)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>1단계 20클래스 실험 (학습 곡선 분석)</strong></p>
+<ul>
+<li>best 모델 = epoch 17 (val_loss 0.0343 최저), 검증 정확도 최고점 = 0.9942 (epoch 19)</li>
+<li>검증 정확도가 학습 정확도보다 높게 측정되는 현상은 <strong>버그가 아님</strong> — 학습 시 dropout=0.5가 켜져 학습 지표가 불리하게 측정되고, 검증 시에는 전체 뉴런을 사용하기 때문(수업 자료: 드롭아웃 동작 원리).</li>
+<li>손실 곡선은 과적합 징후 없이 매끄럽게 수렴.</li>
+</ul>
+<blockquote>
+<p>⚠️ <strong>해석 주의 (이 수치는 누수 분할 기준의 낙관값):</strong> 위 99%대 정확도는 무작위 분할로 학습·검증한 결과라, 같은 사진의 다른 각도 크롭이 train·val에 동시에 들어가는 데이터 누수가 포함되어 있다. 따라서 이 수치는 일반화 성능으로 신뢰할 수 없다. 누수 없는 사진 단위 분할로 재학습하고 <strong>독립 test split</strong> 으로 재측정한 지표를 아래 "5. 한계점 개선" 절의 평가 프레임으로 산출한다.</p>
+</blockquote>
+<h3 id="_11">◆ 병용금기 검출 결과</h3>
+<p>학습된 분류기를 병용금기 DB(1,628쌍)와 대조하는 파이프라인(<code>4_predict_and_check.py</code>)을 구현했다. 추론 결과(class_idx)를 <code>class_map.json</code>의 영문 성분명으로 변환하고, 복합 성분을 <code>|</code>로 분리·정규화한 뒤 금기 DB와 매칭한다. 데이터셋 118종 × 금기 DB 교차 검색 결과 <strong>데이터셋 내에서 실제 금기 2쌍</strong>을 검출했다.</p>
+<table>
+<thead>
+<tr>
+<th>약물 1</th>
+<th>성분 1</th>
+<th>약물 2</th>
+<th>성분 2</th>
+<th>위험</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>아질렉트정</td>
+<td>rasagiline</td>
+<td>울트라셋이알서방정</td>
+<td>tramadol</td>
+<td>고혈압 위기·세로토닌증후군</td>
+</tr>
+<tr>
+<td>액티프롤정 60mg</td>
+<td>pseudoephedrine</td>
+<td>아질렉트정</td>
+<td>rasagiline</td>
+<td>고혈압·빈맥</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>인사이트:</strong> 아질렉트정(rasagiline)이 두 쌍 모두에 관여해 검출의 핵심 노드 역할을 한다. 이 때문에 학습 클래스에 반드시 포함했다. 분류 → 성분명 변환 → 금기 조회로 이어지는 end-to-end 흐름이 성립함을 보였다.</p>
+</blockquote>
+<p><strong>검출 로직 검증(<code>validate_contraindication.py</code>).</strong> 기존 성분 매칭은 "Excel 성분명이 약물 성분 문자열의 부분문자열(substring)인가"로 판단했는데, 이 방식은 다른 약을 부분 포함할 때 거짓 양성을 낸다. 실제로 <code>ephedrine</code>이 <code>pseudoephedrine</code>에, <code>omeprazole</code>이 <code>esomeprazole</code>에, <code>ibuprofen</code>이 <code>dexibuprofen</code>에 잘못 매칭됐다. 이는 임상적으로 "없는 위험을 경고"하는 오류다. 직접 라벨링한 검증셋(16케이스)으로 측정한 결과는 다음과 같다.</p>
+<table>
+<thead>
+<tr>
+<th>매칭 방식</th>
+<th>Precision</th>
+<th>Recall</th>
+<th>F1</th>
+<th>Accuracy</th>
+<th>오경보(FP)</th>
+<th>놓침(FN)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>기존 substring</td>
+<td>0.636</td>
+<td>0.778</td>
+<td>0.700</td>
+<td>0.625</td>
+<td>4</td>
+<td>2</td>
+</tr>
+<tr>
+<td>개선 token(성분 단위)</td>
+<td><strong>1.000</strong></td>
+<td><strong>1.000</strong></td>
+<td><strong>1.000</strong></td>
+<td><strong>1.000</strong></td>
+<td><strong>0</strong></td>
+<td><strong>0</strong></td>
+</tr>
+</tbody>
+</table>
+<p>개선 방식은 성분(<code>|</code> 단위 component)을 토큰 집합으로 만들고, 성분명의 모든 단어가 하나의 component 안에 토큰으로 존재할 때만 매칭하며, <code>+</code> 복합제 표기를 분리해 각 부분을 검사한다. 이로써 <code>ephedrine</code>↔<code>pseudoephedrine</code> 류의 오경보를 제거하면서도 <code>metformin + sitagliptin</code> 같은 복합제 매칭은 정확히 잡는다. 100개 학습 클래스 한정 최종 금기 쌍은 두 방식 모두 2개로 동일하지만(짝까지 동시 매칭되어야 하므로), 매칭의 신뢰도·확장성이 향상됐다.</p>
+<hr />
+<h2 id="4">4. 결론</h2>
+<h3 id="_12">◆ 결과 요약</h3>
+<p>수업에서 학습한 표준 CNN(Conv–BN–ReLU–Pool 4블록 + FC + Dropout)으로 약품 100종 분류기를 구현했고, 2단계 하이퍼파라미터 탐색으로 <code>lr=3e-4</code>를 선정해 검증 정확도 <strong>99.18%</strong> 를 달성했다. 객체 검출 문제를 <strong>전처리 크롭을 통한 분류 문제로 재정의</strong>한 것이 프로젝트를 수업 범위 안에서 성립시킨 핵심 결정이었다.</p>
+<h3 id="_13">◆ 인사이트</h3>
+<ul>
+<li><strong>문제 재정의의 힘:</strong> 모델을 키우기 전에 문제 자체를 분류로 환원한 것이 가장 큰 성능·효율 이득을 냈다.</li>
+<li><strong>병목은 종종 연산이 아니라 I/O:</strong> GPU 활용도를 높인 것은 모델 변경이 아니라 데이터 로딩 병렬화였다.</li>
+<li><strong>지표의 함정 이해:</strong> dropout으로 인한 train/val 지표 역전, val_loss 기준 best 모델 저장 등 수업 개념이 실제 로그 해석에 직접 적용됐다.</li>
+</ul>
+<h3 id="_14">◆ 한계점과 대응 요약</h3>
+<p>초기 파이프라인에서 확인된 한계점과, 이번에 반영한 대응을 정리하면 다음과 같다(상세는 5절).</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>한계점</th>
+<th>대응</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>데이터 누수 — 무작위 분할로 같은 사진 변형이 train·val에 공존</td>
+<td>사진(combo) 단위 그룹 분할로 누수 0건</td>
+</tr>
+<tr>
+<td>2</td>
+<td>독립 테스트셋 부재 — 일반화 성능 평가 불가</td>
+<td>train/val/test 70/15/15 분리, test 전용 평가</td>
+</tr>
+<tr>
+<td>3</td>
+<td>금기 검출 검증이 약함</td>
+<td>라벨링 검증셋으로 정량 평가 + 성분 단위 토큰 매칭으로 교체</td>
+</tr>
+<tr>
+<td>4</td>
+<td>평가지표 부족 — Top-1만 기록</td>
+<td>혼동행렬 · Macro F1 · Top-5 정확도 추가</td>
+</tr>
+<tr>
+<td>5</td>
+<td>클래스 불균형(7.0배) 미보정</td>
+<td>가중 손실(기본) · focal loss · oversampling 도입</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5">5. 한계점 개선 (재현 가능한 해결)</h2>
+<p>각 개선은 코드로 구현했고, 학습이 필요 없는 항목은 실제 수치로 검증했다.</p>
+<h3 id="5-1-0_splitpy">◆ 5-1. 데이터 누수 차단 + 독립 테스트셋 (<code>0_split.py</code>)</h3>
+<p>문제의 핵심은 분할 단위였다. 같은 사진(combo)을 각도·조명만 바꿔 찍은 변형이 사진당 평균 3장이고, 한 사진의 크롭들은 서로 다른 클래스 폴더로 흩어진다(사진당 평균 3.64개 클래스). 무작위 분할은 이 변형들을 train·val에 흩어 배경·조명을 외우게 만든다.</p>
+<p>해결은 <strong>파일명의 사진 식별자(combo)를 그룹 키로 삼아, 한 사진의 모든 크롭을 train/val/test 중 한 곳에만 전역 배정</strong>하는 것이다. 클래스가 세 분할에 모두 포함되도록 coverage를 검증한다.</p>
+<table>
+<thead>
+<tr>
+<th>분할</th>
+<th>이미지 수</th>
+<th>비율</th>
+<th>포함 클래스</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>train</td>
+<td>30,444장</td>
+<td>70.2%</td>
+<td>100</td>
+</tr>
+<tr>
+<td>val</td>
+<td>6,479장</td>
+<td>14.9%</td>
+<td>100</td>
+</tr>
+<tr>
+<td>test</td>
+<td>6,427장</td>
+<td>14.8%</td>
+<td>100</td>
+</tr>
+<tr>
+<td><strong>분할 간 공유 사진</strong></td>
+<td><strong>0건</strong></td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>test split은 학습·검증에서 완전히 격리되며, 최종 평가에만 사용한다.</p>
+<h3 id="5-2-5_evaluatepy">◆ 5-2. 평가지표 확장 (<code>5_evaluate.py</code>)</h3>
+<p>test split에서만 다음을 산출한다: <strong>Top-1 / Top-5 정확도, Macro F1, Weighted F1, 클래스별 Precision/Recall/F1, 100×100 혼동행렬</strong>(PNG·CSV). 산출물은 <code>output/eval/</code>에 저장된다(<code>metrics.json</code>, <code>classification_report.csv</code>, <code>confusion_matrix.csv/png</code>).</p>
+<blockquote>
+<p>📌 <strong>재측정 안내:</strong> 누수 없는 분할로 학습한 모델의 test 지표는 아래 표에 채워 넣는다. 기존 <code>best_model.pth</code>는 누수 분할로 학습된 가중치이므로, 정직한 일반화 성능을 위해 새 분할로 재학습한 뒤 평가해야 한다. 수치는 산출 전까지 임의로 채우지 않는다.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>지표</th>
+<th>값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Top-1 Accuracy</td>
+<td><em>(재학습 후 5_evaluate.py 산출)</em></td>
+</tr>
+<tr>
+<td>Top-5 Accuracy</td>
+<td><em>(재학습 후 산출)</em></td>
+</tr>
+<tr>
+<td>Macro F1</td>
+<td><em>(재학습 후 산출)</em></td>
+</tr>
+<tr>
+<td>Weighted F1</td>
+<td><em>(재학습 후 산출)</em></td>
+</tr>
+</tbody>
+</table>
+<h3 id="5-3-imbalancepy-3_trainpy">◆ 5-3. 클래스 불균형 보정 (<code>imbalance.py</code>, <code>3_train.py</code>)</h3>
+<p>클래스별 이미지 수는 156~1,086장으로 <strong>최다/최소 7.0배</strong> 차이가 난다. 세 가지 표준 기법을 구현하고 플래그로 전환한다.</p>
+<ul>
+<li><strong>가중 CrossEntropyLoss(기본):</strong> 클래스 빈도의 역수를 가중치로 부여해 소수 클래스의 손실 기여를 키운다.</li>
+<li><strong>Focal Loss:</strong> <code>(1−p_t)^γ</code> 로 쉬운(다수) 샘플의 손실을 낮춰 어려운 소수 클래스에 집중한다(γ 기본 2.0).</li>
+<li><strong>Oversampling:</strong> <code>WeightedRandomSampler</code>로 소수 클래스 샘플을 더 자주 추출해 배치 균형을 맞춘다.</li>
+</ul>
+<p>소수 클래스 성능은 5-2의 Macro F1·클래스별 F1로 확인한다.</p>
+<h3 id="5-4-validate_contraindicationpy">◆ 5-4. 금기 검출 검증 강화 (<code>validate_contraindication.py</code>)</h3>
+<p>성분 매칭을 부분문자열에서 <strong>성분 단위 토큰 부분집합 매칭</strong>으로 교체하고, 직접 라벨링한 검증셋으로 정량 평가했다. 기존 방식은 <code>ephedrine↔pseudoephedrine</code>, <code>omeprazole↔esomeprazole</code>, <code>ibuprofen↔dexibuprofen</code> 같은 거짓 양성을 냈으나, 개선 방식은 검증셋 16케이스 전부를 맞혔다(Precision·Recall·Accuracy 모두 0.625→1.000). 상세 수치는 3절 표 참조.</p>
+<h3 id="5-5">◆ 5-5. 남은 한계와 향후 과제</h3>
+<ul>
+<li><strong>금기 조합의 희소성:</strong> 100개 학습 클래스 안의 실제 금기는 2쌍(약물 3종)뿐이다. 금기 약물을 더 포함하도록 데이터·클래스를 확장하면 검출의 실증 가치가 커진다.</li>
+<li><strong>성분명 동의어:</strong> 토큰 매칭도 <code>aspirin↔acetylsalicylic acid</code>처럼 표기 자체가 다른 동의어는 잡지 못한다. 동의어 사전을 더하면 재현율이 더 오른다.</li>
+<li><strong>재학습 기반 재측정:</strong> 5-2의 test 지표를 채워 누수 제거 전후의 정확도 변화를 정량 비교하는 것이 다음 단계다.</li>
+</ul>
+<hr />
+<h2 id="_15">부록</h2>
+<h3 id="a">A. 팀 구성 및 역할 분담 〔확인 필요〕</h3>
+<p>평가에서 팀 점수 70% + 개인 기여도 30%(동료 평가 반영)로 산정되므로, 아래 표를 실제 팀원 정보로 채워 주세요.</p>
+<table>
+<thead>
+<tr>
+<th>역할</th>
+<th>담당</th>
+<th>주요 업무</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PM</td>
+<td>〔이름〕</td>
+<td>주제 구체화, 일정 관리, 보고서 구조 설계</td>
+</tr>
+<tr>
+<td>Engineer</td>
+<td>〔이름〕</td>
+<td>데이터 수집·전처리, 모델 구현·실험</td>
+</tr>
+<tr>
+<td>Analyst</td>
+<td>〔이름〕</td>
+<td>결과 해석·시각화, 성능 비교, 한계·개선 도출</td>
+</tr>
+</tbody>
+</table>
+<h3 id="b">B. 재현 정보</h3>
+<pre><code># 1) 사진 단위 분할 생성 (누수 차단 + 독립 테스트셋)
+python src/0_split.py            # → data/splits.json (train/val/test = 70/15/15, seed 42)
+
+# 2) 학습 (불균형 보정: 기본 가중 손실)
+python src/3_train.py            # 기본
+python src/3_train.py --loss focal --gamma 2.0
+python src/3_train.py --loss weighted --sampler weighted
+
+# 3) test 전용 최종 평가 (혼동행렬·Macro F1·Top-5)
+python src/5_evaluate.py         # → output/eval/
+
+# 금기 검출 로직 검증
+python src/examination/validate_contraindication.py
+
+하이퍼파라미터: classes=100, batch=128, lr=1e-3(탐색 시 3e-4), dropout=0.5,
+epochs=80(early stop, patience=8), split=70/15/15, seed=42
+</code></pre>
+<h3 id="c">C. 파이프라인 파일 구성</h3>
+<ul>
+<li><code>main.py</code> — 엔트리포인트 (<code>preprocess</code> / <code>train</code> / <code>predict</code> 서브커맨드)</li>
+<li><code>0_split.py</code> — <strong>사진(combo) 단위 그룹 분할</strong>로 <code>data/splits.json</code> 생성(누수 0건 검증)</li>
+<li><code>1_preprocess.py</code> — bbox 크롭으로 단일 약품 이미지 생성 (클래스별 폴더 <code>{idx:03d}_{code}/</code>)</li>
+<li><code>2_model.py</code> — DrugCNN 정의 (Conv–BN–ReLU–Pool ×4 + FC + Dropout)</li>
+<li><code>imbalance.py</code> — 클래스 불균형 대응(가중 손실·focal loss·oversampling)</li>
+<li><code>3_train.py</code> — splits.json의 train/val 학습 + 불균형 보정 + 조기 종료 + 손실 곡선</li>
+<li><code>4_predict_and_check.py</code> — 추론 → <code>class_map.json</code> 성분명 → 병용금기 DB 조회</li>
+<li><code>5_evaluate.py</code> — <strong>test 전용</strong> 최종 평가(혼동행렬·Macro F1·Top-1/Top-5)</li>
+<li><code>examination/find_contraindicated.py</code> — 데이터셋 × 금기 DB 교차 검색</li>
+<li><code>examination/validate_contraindication.py</code> — 금기 매칭 정확도 검증 + 성분 단위 토큰 매칭</li>
+</ul>
+<h3 id="d">D. 참고 문헌</h3>
+<ul>
+<li>Ioffe &amp; Szegedy (2015). <em>Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift.</em> ICML.</li>
+<li>Srivastava et al. (2014). <em>Dropout: A Simple Way to Prevent Neural Networks from Overfitting.</em> JMLR.</li>
+<li>Kingma &amp; Ba (2015). <em>Adam: A Method for Stochastic Optimization.</em> ICLR.</li>
+<li>He et al. (2016). <em>Deep Residual Learning for Image Recognition.</em> CVPR.</li>
+<li>Lin et al. (2017). <em>Focal Loss for Dense Object Detection.</em> ICCV. (클래스 불균형 보정)</li>
+</ul></div></div></body></html>

@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# macOS
+.DS_Store
+
+# Model weights (large)
+*.pth
+
+# Data (large, not tracked)
+data/cropped/*
+!data/cropped/README.md
+data/cropped.zip
+data/images/*
+!data/images/README.md
+data/labels/*
+!data/labels/README.md
+
+# Evaluation outputs
+output/eval/
+
+# Session exports
+session-export-*/

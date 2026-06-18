@@ -1,0 +1,802 @@
+{
+  "K-031863": {
+    "class_idx": 0,
+    "name": "아질렉트정(라사길린메실산염)",
+    "material_en": "Rasagiline Mesylate",
+    "material_kr": "라사길린메실산염",
+    "img_count": 159,
+    "priority": true
+  },
+  "K-027926": {
+    "class_idx": 1,
+    "name": "울트라셋이알서방정",
+    "material_en": "Acetaminophen| Tramadol Hydrochloride",
+    "material_kr": "아세트아미노펜|트라마돌염산염",
+    "img_count": 240,
+    "priority": true
+  },
+  "K-024941": {
+    "class_idx": 2,
+    "name": "액티프롤정 60mg/PTP",
+    "material_en": "Pseudoephedrine Hydrochloride| Triprolidine Hydrochloride Hydrate",
+    "material_kr": "슈도에페드린염산염|트리프롤리딘염산염수화물",
+    "img_count": 360,
+    "priority": true
+  },
+  "K-016548": {
+    "class_idx": 3,
+    "name": "가바토파정 100mg",
+    "material_en": "Topiramate",
+    "material_kr": "토피라메이트",
+    "img_count": 1098,
+    "priority": false
+  },
+  "K-016551": {
+    "class_idx": 4,
+    "name": "동아가바펜틴정 800mg",
+    "material_en": "Gabapentin",
+    "material_kr": "가바펜틴",
+    "img_count": 1097,
+    "priority": false
+  },
+  "K-016232": {
+    "class_idx": 5,
+    "name": "리피토정 20mg",
+    "material_en": "Atorvastatin Calcium Hydrate",
+    "material_kr": "아토르바스타틴칼슘삼수화물",
+    "img_count": 942,
+    "priority": false
+  },
+  "K-016262": {
+    "class_idx": 6,
+    "name": "크레스토정 20mg",
+    "material_en": "Rosuvastatin Calcium",
+    "material_kr": "로수바스타틴칼슘",
+    "img_count": 708,
+    "priority": false
+  },
+  "K-029667": {
+    "class_idx": 7,
+    "name": "리바로정 4mg",
+    "material_en": "Pitavastatin Calcium",
+    "material_kr": "피타바스타틴칼슘",
+    "img_count": 699,
+    "priority": false
+  },
+  "K-020238": {
+    "class_idx": 8,
+    "name": "플라빅스정 75mg",
+    "material_en": "Clopidogrel Bisulfate",
+    "material_kr": "클로피도그렐황산염",
+    "img_count": 696,
+    "priority": false
+  },
+  "K-036637": {
+    "class_idx": 9,
+    "name": "로수젯정10/5밀리그램",
+    "material_en": "Ezetimibe| Rosuvastatin Calcium",
+    "material_kr": "로수바스타틴칼슘|에제티미브",
+    "img_count": 693,
+    "priority": false
+  },
+  "K-035206": {
+    "class_idx": 10,
+    "name": "아토젯정 10/40mg",
+    "material_en": "Atorvastatin Calcium Trihydrate| Ezetimibe",
+    "material_kr": "에제티미브|아토르바스타틴칼슘삼수화물",
+    "img_count": 684,
+    "priority": false
+  },
+  "K-003614": {
+    "class_idx": 11,
+    "name": "동아오팔몬정(리마프로스트알파-시클로덱스트린포접화합물)",
+    "material_en": "Limaprost Alfadex",
+    "material_kr": "리마프로스트 α-시클로덱스트린포접화합물",
+    "img_count": 642,
+    "priority": false
+  },
+  "K-011220": {
+    "class_idx": 12,
+    "name": "아스피린프로텍트정 100mg",
+    "material_en": "Aspirin",
+    "material_kr": "아스피린",
+    "img_count": 642,
+    "priority": false
+  },
+  "K-015710": {
+    "class_idx": 13,
+    "name": "엔테론정 150mg",
+    "material_en": "Vitis Vinifera Seed Dried Ext.",
+    "material_kr": "포도씨건조엑스",
+    "img_count": 639,
+    "priority": false
+  },
+  "K-003483": {
+    "class_idx": 14,
+    "name": "기넥신에프정(은행엽엑스)(수출용)",
+    "material_en": "Ginkgo Leaf Ext.",
+    "material_kr": "은행엽건조엑스",
+    "img_count": 624,
+    "priority": false
+  },
+  "K-016235": {
+    "class_idx": 15,
+    "name": "카듀엣정 5mg/20mg",
+    "material_en": "Amlodipine Besylate| Atorvastatin Calcium Trihydrate",
+    "material_kr": "아토르바스타틴칼슘삼수화물|암로디핀베실산염",
+    "img_count": 579,
+    "priority": false
+  },
+  "K-027653": {
+    "class_idx": 16,
+    "name": "세비카정 10/40mg",
+    "material_en": "Amlodipine Besylate| Olmesartan Medoxomil",
+    "material_kr": "올메사르탄메독소밀|암로디핀베실산염",
+    "img_count": 558,
+    "priority": false
+  },
+  "K-022347": {
+    "class_idx": 17,
+    "name": "자누비아정 50mg",
+    "material_en": "Sitagliptin Phosphate Hydrate　",
+    "material_kr": "시타글립틴인산염수화물",
+    "img_count": 558,
+    "priority": false
+  },
+  "K-025367": {
+    "class_idx": 18,
+    "name": "자누메트정 50/850mg",
+    "material_en": "Metformin Hydrochloride| Sitagliptin Phosphate Hydrate",
+    "material_kr": "시타글립틴인산염수화물|메트포르민염산염",
+    "img_count": 549,
+    "priority": false
+  },
+  "K-025469": {
+    "class_idx": 19,
+    "name": "아모잘탄정 5/100mg",
+    "material_en": "Amlodipine Camsylate| Losartan potassium",
+    "material_kr": "로사르탄칼륨|암로디핀캄실산염",
+    "img_count": 546,
+    "priority": false
+  },
+  "K-020877": {
+    "class_idx": 20,
+    "name": "엑스포지정 5/160mg",
+    "material_en": "Amlodipine Besylate| Valsartan",
+    "material_kr": "발사르탄|암로디핀베실산염",
+    "img_count": 543,
+    "priority": false
+  },
+  "K-028763": {
+    "class_idx": 21,
+    "name": "트라젠타정(리나글립틴)",
+    "material_en": "Linagliptin",
+    "material_kr": "리나글립틴",
+    "img_count": 540,
+    "priority": false
+  },
+  "K-003743": {
+    "class_idx": 22,
+    "name": "알드린정",
+    "material_en": "Almagate",
+    "material_kr": "알마게이트",
+    "img_count": 540,
+    "priority": false
+  },
+  "K-013004": {
+    "class_idx": 23,
+    "name": "이가탄에프캡슐 150mg/PTP",
+    "material_en": "Ascorbic Acid| Carbazochrome| Lysozyme Chloride| Tocopherol Acetate 50%",
+    "material_kr": "리소짐염산염|제피아스코르브산|토코페롤아세테이트 2배산|카르바조크롬",
+    "img_count": 540,
+    "priority": false
+  },
+  "K-010487": {
+    "class_idx": 24,
+    "name": "동화덴스톨캡슐 150mg/PTP",
+    "material_en": "50% Tocopherol Acetate Powder| Ascorbic Acid| Carbazochrome| Lysozyme Chloride",
+    "material_kr": "아스코르브산|리소짐염산염|토코페롤아세테이트 2배산|카르바조크롬",
+    "img_count": 540,
+    "priority": false
+  },
+  "K-000250": {
+    "class_idx": 25,
+    "name": "마그밀정(수산화마그네슘)",
+    "material_en": "Magnesium Hydroxide",
+    "material_kr": "수산화마그네슘",
+    "img_count": 540,
+    "priority": false
+  },
+  "K-006835": {
+    "class_idx": 26,
+    "name": "이튼큐정 35mg/PTP",
+    "material_en": "Titrated Ext. of the Unsaponifiable Fraction of Zea mays",
+    "material_kr": "옥수수불검화정량추출물",
+    "img_count": 539,
+    "priority": false
+  },
+  "K-012638": {
+    "class_idx": 27,
+    "name": "투스딘골드캡슐 150mg/PTP",
+    "material_en": "Carbazochrome| Ascorbic Acid| Lysozyme Chloride| Tocopherol Acetate 50%",
+    "material_kr": "아스코르브산|리소짐염산염|토코페롤아세테이트 2배산|카르바조크롬",
+    "img_count": 537,
+    "priority": false
+  },
+  "K-001866": {
+    "class_idx": 28,
+    "name": "알마겔정(알마게이트)(수출명:유한가스트라겔정)",
+    "material_en": "Almagate",
+    "material_kr": "알마게이트",
+    "img_count": 537,
+    "priority": false
+  },
+  "K-027733": {
+    "class_idx": 29,
+    "name": "트윈스타정 40/5mg",
+    "material_en": "Amlodipine Besylate| Telmisartan　",
+    "material_kr": "텔미사르탄|암로디핀베실산염",
+    "img_count": 534,
+    "priority": false
+  },
+  "K-019861": {
+    "class_idx": 30,
+    "name": "노바스크정 5mg",
+    "material_en": "Amlodipine Besylate",
+    "material_kr": "암로디핀베실산염",
+    "img_count": 531,
+    "priority": false
+  },
+  "K-034597": {
+    "class_idx": 31,
+    "name": "제미메트서방정 50/1000mg",
+    "material_en": "Gemigliptin Tartrate Sesquihydrate| Metformin Hydrochloride",
+    "material_kr": "제미글립틴타르타르산염1.5수화물|메트포르민염산염",
+    "img_count": 531,
+    "priority": false
+  },
+  "K-030308": {
+    "class_idx": 32,
+    "name": "트라젠타듀오정 2.5/850mg",
+    "material_en": "Linagliptin| Metformin Hydrochloride",
+    "material_kr": "리나글립틴|메트포르민염산염",
+    "img_count": 531,
+    "priority": false
+  },
+  "K-031885": {
+    "class_idx": 33,
+    "name": "자누메트엑스알서방정 100/1000mg",
+    "material_en": "Metformin Hydrochloride| Sitagliptin Phosphate Hydrate",
+    "material_kr": "메트포르민염산염|시타글립틴인산염수화물",
+    "img_count": 528,
+    "priority": false
+  },
+  "K-027777": {
+    "class_idx": 34,
+    "name": "카나브정 60mg",
+    "material_en": "Fimasartan Potassium Trihydrate",
+    "material_kr": "피마사르탄칼륨삼수화물",
+    "img_count": 521,
+    "priority": false
+  },
+  "K-006192": {
+    "class_idx": 35,
+    "name": "삐콤씨에프정 618.6mg/병",
+    "material_en": "Ascorbic Acid| Biotin| Calcium Pantothenate| Cyanocobalamin| Ferrous Fumarate| Folic Acid| Nicotinamide| Pyridoxine Hydrochloride| Riboflavin| Thiamine Nitrate| Tocopherol Acetate",
+    "material_kr": "아스코르브산과립97%|티아민질산염|피리독신염산염|리보플라빈|판토텐산칼슘|니코틴산아미드|토코페롤아세테이트 2배산|폴산|시아노코발라민100배산|d-비오틴1%|푸마르산철",
+    "img_count": 495,
+    "priority": false
+  },
+  "K-012778": {
+    "class_idx": 36,
+    "name": "다보타민큐정 10mg/병",
+    "material_en": "Ascorbic Acid Gr. 97%| Biotin 1%| Calcium Pantothenate| Cupric Oxide| Cyanocobalamin 1%| Dibasic Calcium Phosphate| Ergocalciferol Gr.| Ferrous Fumarate| Folic Acid| Magnesium Oxide| Manganese Sulfate| Molybden in Dried Yeast| Nicotinamide| Potassium Chloride| Potassium Iodide| Pyridoxine Hydrochloride 97% Gr.| Riboflavin| Selenium in Dried Yeast| Thiamine Nitrate(3倍散)| Tocopherol Acetate 50%| Zinc Sulfate Monohydrate| β-Carotene 20% Gr.",
+    "material_kr": "",
+    "img_count": 492,
+    "priority": false
+  },
+  "K-023223": {
+    "class_idx": 37,
+    "name": "비타비백정 100mg/병",
+    "material_en": "Folic Acid| Biotin 1%| Calcium Pantothenate| Cyanocobalamin(1000倍散)| Nicotinamide| Pyridoxine Hydrochloride 97% Gr.| Riboflavin| Thiamine Nitrate| Ursodeoxycholic Acid",
+    "material_kr": "니코틴산아미드|피리독신염산염97%과립|리보플라빈|티아민질산염|판토텐산칼슘|폴산|d-비오틴1%|시아노코발라민100배산|우르소데옥시콜산",
+    "img_count": 483,
+    "priority": false
+  },
+  "K-019552": {
+    "class_idx": 38,
+    "name": "트루비타정 60mg/병",
+    "material_en": "Zinc Sulfate Monohydrate| Ascorbic Acid Gr. 97%| Biotin 1%| Calcium Pantothenate| Cupric Oxide| Cyanocobalamin 1%| Dibasic Calcium Phosphate| Ergocalciferol Gr.| Ferrous Fumarate| Folic Acid| Magnesium Oxide| Manganese Sulfate| Molybden in Dried Yeast| Nicotinamide| Potassium Chloride| Pyridoxine Hydrochloride 97% Gr.| Retinol Acetate Gr.| Riboflavin| Selenium in Dried Yeast| Thiamine Nitrate(3倍散)| Tocopherol Acetate 50%",
+    "material_kr": "",
+    "img_count": 483,
+    "priority": false
+  },
+  "K-022627": {
+    "class_idx": 39,
+    "name": "메가파워정 90mg/병",
+    "material_en": "Selenium in Dried Yeast| Ascorbic Acid Gr. 97%| Calcium Pantothenate| Cyanocobalamin 1%| Dibasic Calcium Phosphate| Ergocalciferol Gr.| Ferrous Fumarate| Magnesium Oxide| Manganese Sulfate| Molybden in Dried Yeast| Nicotinamide| Potassium Chloride| Pyridoxine Hydrochloride 97% Gr.| Retinol Acetate Gr.| Riboflavin| Thiamine Nitrate(3倍散)| Tocopherol Acetate 50%| Zinc Sulfate",
+    "material_kr": "",
+    "img_count": 483,
+    "priority": false
+  },
+  "K-025438": {
+    "class_idx": 40,
+    "name": "큐시드정 31.5mg/PTP",
+    "material_en": "Aluminum Magnesium Hydroxide| Aluminum Magnesium Silicate| Magnesium Oxide| Ranitidine Hydrochloride",
+    "material_kr": "라니티딘염산염|산화마그네슘|규산알루민산마그네슘|수산화알루민산마그네슘",
+    "img_count": 450,
+    "priority": false
+  },
+  "K-002483": {
+    "class_idx": 41,
+    "name": "뮤테란캡슐 100mg",
+    "material_en": "Acetylcysteine",
+    "material_kr": "아세틸시스테인",
+    "img_count": 450,
+    "priority": false
+  },
+  "K-004378": {
+    "class_idx": 42,
+    "name": "타이레놀정500mg",
+    "material_en": "Acetaminophen",
+    "material_kr": "아세트아미노펜",
+    "img_count": 450,
+    "priority": false
+  },
+  "K-006697": {
+    "class_idx": 43,
+    "name": "씨즈날정(세티리진염산염)",
+    "material_en": "Ceftibuten Hydrate",
+    "material_kr": "세티리진염산염",
+    "img_count": 450,
+    "priority": false
+  },
+  "K-053384": {
+    "class_idx": 44,
+    "name": "디카테오엘씨정 10mg/병",
+    "material_en": "",
+    "material_kr": "시트르산칼슘수화물|농축콜레칼시페롤 과립",
+    "img_count": 450,
+    "priority": false
+  },
+  "K-025200": {
+    "class_idx": 45,
+    "name": "마이칼디정",
+    "material_en": "Calcium Citrate| Cholecalciferol Gr.| Cyanocobalamin| Folic Acid",
+    "material_kr": "시트르산칼슘수화물|콜레칼시페롤과립|시아노코발라민|폴산",
+    "img_count": 450,
+    "priority": false
+  },
+  "K-026993": {
+    "class_idx": 46,
+    "name": "원더칼-디츄어블정",
+    "material_en": "Calcium Citrate| Cholecalciferol Concentrated Powder",
+    "material_kr": "콜레칼시페롤농축분말|구연산칼슘",
+    "img_count": 450,
+    "priority": false
+  },
+  "K-029711": {
+    "class_idx": 47,
+    "name": "디카테오정",
+    "material_en": "Calcium Citrate| Cholecalciferol Concentrated Gr.",
+    "material_kr": "시트르산칼슘|농축콜레칼시페롤 과립",
+    "img_count": 450,
+    "priority": false
+  },
+  "K-005002": {
+    "class_idx": 48,
+    "name": "엘도스캡슐(에르도스테인)(수출용)",
+    "material_en": "Erdosteine",
+    "material_kr": "에르도스테인",
+    "img_count": 450,
+    "priority": false
+  },
+  "K-000573": {
+    "class_idx": 49,
+    "name": "게보린정 300mg/PTP",
+    "material_en": "Acetaminophen| Caffeine Anhydrous| Isopropylantipyrine",
+    "material_kr": "아세트아미노펜|카페인무수물|이소프로필안티피린",
+    "img_count": 450,
+    "priority": false
+  },
+  "K-023319": {
+    "class_idx": 50,
+    "name": "디카맥스디플러스정",
+    "material_en": "Calcium Carbonate Gr. 95%| Cholecalciferol Concentrated Gr.",
+    "material_kr": "탄산칼슘|농축콜레칼시페롤",
+    "img_count": 447,
+    "priority": false
+  },
+  "K-012081": {
+    "class_idx": 51,
+    "name": "리렉스펜정 300mg/PTP",
+    "material_en": "Acetaminophen| Chlorzoxazone",
+    "material_kr": "아세트아미노펜|클로르족사존",
+    "img_count": 396,
+    "priority": false
+  },
+  "K-005886": {
+    "class_idx": 52,
+    "name": "타이레놀이알서방정(아세트아미노펜)(수출용)",
+    "material_en": "Acetaminophen",
+    "material_kr": "아세트아미노펜",
+    "img_count": 390,
+    "priority": false
+  },
+  "K-013161": {
+    "class_idx": 53,
+    "name": "엘스테인캡슐(에르도스테인)",
+    "material_en": "Erdosteine",
+    "material_kr": "에르도스테인",
+    "img_count": 390,
+    "priority": false
+  },
+  "K-013395": {
+    "class_idx": 54,
+    "name": "써스펜8시간이알서방정 650mg",
+    "material_en": "Acetaminophen Encapsulated",
+    "material_kr": "아세트아미노펜",
+    "img_count": 387,
+    "priority": false
+  },
+  "K-006563": {
+    "class_idx": 55,
+    "name": "조인스정 200mg",
+    "material_en": "Clematidis Radix|Trichosanthes Root|Prunella Spike 30%",
+    "material_kr": "위령선·괄루근·하고초30%에탄올건조엑스",
+    "img_count": 384,
+    "priority": false
+  },
+  "K-012420": {
+    "class_idx": 56,
+    "name": "자이프렉사정 2.5mg",
+    "material_en": "Olaparib",
+    "material_kr": "올란자핀",
+    "img_count": 384,
+    "priority": false
+  },
+  "K-003544": {
+    "class_idx": 57,
+    "name": "무코스타정(레바미피드)(비매품)",
+    "material_en": "Rebamipide",
+    "material_kr": "레바미피드",
+    "img_count": 384,
+    "priority": false
+  },
+  "K-010224": {
+    "class_idx": 58,
+    "name": "넥시움정 40mg",
+    "material_en": "Esomeprazole Magnesium Trihydrate",
+    "material_kr": "에스오메프라졸마그네슘삼수화물",
+    "img_count": 384,
+    "priority": false
+  },
+  "K-037777": {
+    "class_idx": 59,
+    "name": "알바스테인캡슐(에르도스테인)",
+    "material_en": "Erdosteine",
+    "material_kr": "에르도스테인",
+    "img_count": 384,
+    "priority": false
+  },
+  "K-001900": {
+    "class_idx": 60,
+    "name": "보령부스파정 5mg",
+    "material_en": "Buspirone Hydrochloride",
+    "material_kr": "부스피론염산염",
+    "img_count": 383,
+    "priority": false
+  },
+  "K-012247": {
+    "class_idx": 61,
+    "name": "아빌리파이정 10mg",
+    "material_en": "Aripiprazole",
+    "material_kr": "아리피프라졸",
+    "img_count": 381,
+    "priority": false
+  },
+  "K-044834": {
+    "class_idx": 62,
+    "name": "엘스테인정(에르도스테인)",
+    "material_en": "",
+    "material_kr": "에르도스테인",
+    "img_count": 381,
+    "priority": false
+  },
+  "K-038954": {
+    "class_idx": 63,
+    "name": "뮤코원캡슐(에르도스테인)",
+    "material_en": "Erdosteine",
+    "material_kr": "에르도스테인",
+    "img_count": 381,
+    "priority": false
+  },
+  "K-010221": {
+    "class_idx": 64,
+    "name": "쎄로켈정 100mg",
+    "material_en": "Quetiapine Fumarate",
+    "material_kr": "쿠에티아핀푸마르산염",
+    "img_count": 378,
+    "priority": false
+  },
+  "K-004543": {
+    "class_idx": 65,
+    "name": "에어탈정(아세클로페낙)",
+    "material_en": "Aceclofenac",
+    "material_kr": "아세클로페낙",
+    "img_count": 378,
+    "priority": false
+  },
+  "K-044266": {
+    "class_idx": 66,
+    "name": "바이오탑하이캡슐 150mg/병",
+    "material_en": "",
+    "material_kr": "엔테로코쿠스페칼리스T-110균|바실루스메센테리쿠스토아균|클로스트리디움부티리쿰토아균",
+    "img_count": 375,
+    "priority": false
+  },
+  "K-038927": {
+    "class_idx": 67,
+    "name": "락토엔큐캡슐(바실루스리케니포르미스균) ",
+    "material_en": "Bacillus Licheniformis",
+    "material_kr": "바실루스리케니포르미스균",
+    "img_count": 375,
+    "priority": false
+  },
+  "K-020004": {
+    "class_idx": 68,
+    "name": "라시도필캡슐(비매품)",
+    "material_en": "Mixed powder of Bacteria Culture of Lactobacillus Rhamnosus R0011 and Lactobacillus Helveticus R0052",
+    "material_kr": "락토바실루스람노수스R0011균락토바실루스헬베티쿠스R0052균혼합분말",
+    "img_count": 375,
+    "priority": false
+  },
+  "K-043233": {
+    "class_idx": 69,
+    "name": "바이오탑디캡슐 50mg/병",
+    "material_en": "Bacillus Mesentericus Toa| Clostridium Butyricum Toa| Enterococcus Faecalis T-100",
+    "material_kr": "엔테로코쿠스페칼리스T-110균|바실루스메센테리쿠스토아균|클로스트리디움부티리쿰토아균",
+    "img_count": 375,
+    "priority": false
+  },
+  "K-030850": {
+    "class_idx": 70,
+    "name": "비오플250캡슐 282.5mg",
+    "material_en": "Saccharomyces Boulardii",
+    "material_kr": "사카로마이세스보울라르디균",
+    "img_count": 375,
+    "priority": false
+  },
+  "K-041149": {
+    "class_idx": 71,
+    "name": "람노스캡슐500mg/병",
+    "material_en": "Freeze-Dried Lactobacillus casei var. Rhamnosus Culture",
+    "material_kr": "락토바실루스카제이변종람노수스의동결건조배양물",
+    "img_count": 372,
+    "priority": false
+  },
+  "K-005094": {
+    "class_idx": 72,
+    "name": "삼남건조수산화알루미늄겔정",
+    "material_en": "Dried Aluminum Hydroxide Gel",
+    "material_kr": "건조수산화알루미늄 겔",
+    "img_count": 369,
+    "priority": false
+  },
+  "K-022362": {
+    "class_idx": 73,
+    "name": "맥시부펜이알정 300mg",
+    "material_en": "Dexibuprofen",
+    "material_kr": "덱시부프로펜",
+    "img_count": 363,
+    "priority": false
+  },
+  "K-038972": {
+    "class_idx": 74,
+    "name": "알러비정(세티리진염산염)",
+    "material_en": "Ceftibuten Hydrate",
+    "material_kr": "세티리진염산염",
+    "img_count": 360,
+    "priority": false
+  },
+  "K-026455": {
+    "class_idx": 75,
+    "name": "클라리틴정(로라타딘)",
+    "material_en": "Loratadine",
+    "material_kr": "로라타딘",
+    "img_count": 360,
+    "priority": false
+  },
+  "K-019881": {
+    "class_idx": 76,
+    "name": "지르텍정(세티리진염산염)",
+    "material_en": "Ceftibuten Hydrate",
+    "material_kr": "세티리진염산염",
+    "img_count": 358,
+    "priority": false
+  },
+  "K-035659": {
+    "class_idx": 77,
+    "name": "제라타딘정(로라타딘)",
+    "material_en": "Loratadine",
+    "material_kr": "로라타딘",
+    "img_count": 357,
+    "priority": false
+  },
+  "K-003351": {
+    "class_idx": 78,
+    "name": "일양하이트린정 2mg",
+    "material_en": "Terazosin Hydrochloride Hydrate",
+    "material_kr": "테라조신염산염수화물",
+    "img_count": 297,
+    "priority": false
+  },
+  "K-003832": {
+    "class_idx": 79,
+    "name": "뉴로메드정(옥시라세탐)",
+    "material_en": "Oxiracetam",
+    "material_kr": "옥시라세탐",
+    "img_count": 297,
+    "priority": false
+  },
+  "K-005391": {
+    "class_idx": 80,
+    "name": "프로스카정",
+    "material_en": "Finasteride",
+    "material_kr": "피나스테리드",
+    "img_count": 297,
+    "priority": false
+  },
+  "K-005000": {
+    "class_idx": 81,
+    "name": "비유피-4정 20mg",
+    "material_en": "Propiverine Hydrochloride",
+    "material_kr": "프로피베린염산염",
+    "img_count": 297,
+    "priority": false
+  },
+  "K-013900": {
+    "class_idx": 82,
+    "name": "에빅사정(메만틴염산염)(비매품)",
+    "material_en": "Memantine Hydrochloride",
+    "material_kr": "메만틴염산염",
+    "img_count": 294,
+    "priority": false
+  },
+  "K-016206": {
+    "class_idx": 83,
+    "name": "아보다트연질캡슐 0.5mg",
+    "material_en": "Dutasteride",
+    "material_kr": "두타스테리드",
+    "img_count": 294,
+    "priority": false
+  },
+  "K-015280": {
+    "class_idx": 84,
+    "name": "한미탐스캡슐 0.2mg",
+    "material_en": "Tamsulosin Hydrochloride",
+    "material_kr": "탐스로신염산염",
+    "img_count": 288,
+    "priority": false
+  },
+  "K-021771": {
+    "class_idx": 85,
+    "name": "라비에트정 20mg",
+    "material_en": "Rabeprazole Sodium",
+    "material_kr": "라베프라졸나트륨",
+    "img_count": 240,
+    "priority": false
+  },
+  "K-031705": {
+    "class_idx": 86,
+    "name": "낙소졸정 500/20mg",
+    "material_en": "Naproxen| S-omeprazole Strontium Tetrahydrate",
+    "material_kr": "나프록센|에스오메프라졸스트론튬사수화물",
+    "img_count": 240,
+    "priority": false
+  },
+  "K-018110": {
+    "class_idx": 87,
+    "name": "란스톤엘에프디티정 30mg",
+    "material_en": "Lansoprazole",
+    "material_kr": "란소프라졸",
+    "img_count": 240,
+    "priority": false
+  },
+  "K-033009": {
+    "class_idx": 88,
+    "name": "신바로정",
+    "material_en": "Acanthopanax·Achyranthes·Ledebouriella etc Dried ext.",
+    "material_kr": "자오가·우슬·방풍·두충·구척·흑두건조엑스",
+    "img_count": 240,
+    "priority": false
+  },
+  "K-021026": {
+    "class_idx": 89,
+    "name": "펠루비정(펠루비프로펜)",
+    "material_en": "Pelubiprofen",
+    "material_kr": "펠루비프로펜",
+    "img_count": 240,
+    "priority": false
+  },
+  "K-024850": {
+    "class_idx": 90,
+    "name": "놀텍정 10mg",
+    "material_en": "Ilaprazole",
+    "material_kr": "일라프라졸",
+    "img_count": 237,
+    "priority": false
+  },
+  "K-029451": {
+    "class_idx": 91,
+    "name": "레일라정",
+    "material_en": "Angelica·Chaenomeles·Ledebouriella·Dipsacus etc Soft Ext.",
+    "material_kr": "당귀·모과·방풍·속단·오가피·우슬·위령선·육계·진교·천궁·천마·홍화25%에탄올연조엑스",
+    "img_count": 237,
+    "priority": false
+  },
+  "K-029345": {
+    "class_idx": 92,
+    "name": "비모보정 500/20mg",
+    "material_en": "Esomeprazole Magnesium Trihydrate| Naproxen",
+    "material_kr": "나프록센|에스오메프라졸마그네슘삼수화물",
+    "img_count": 237,
+    "priority": false
+  },
+  "K-019607": {
+    "class_idx": 93,
+    "name": "스토가정 10mg",
+    "material_en": "Lafutidine",
+    "material_kr": "라푸티딘",
+    "img_count": 237,
+    "priority": false
+  },
+  "K-044199": {
+    "class_idx": 94,
+    "name": "케이캡정 50mg",
+    "material_en": "Tegoprazan",
+    "material_kr": "테고프라잔",
+    "img_count": 237,
+    "priority": false
+  },
+  "K-033208": {
+    "class_idx": 95,
+    "name": "에스원엠프정 20mg",
+    "material_en": "Esomeprazole Magnesium Dihydrate",
+    "material_kr": "에스오메프라졸마그네슘삼수화물",
+    "img_count": 237,
+    "priority": false
+  },
+  "K-021325": {
+    "class_idx": 96,
+    "name": "아토르바정 10mg",
+    "material_en": "Atorvastatin Calcium",
+    "material_kr": "아토르바스타틴칼슘",
+    "img_count": 180,
+    "priority": false
+  },
+  "K-038162": {
+    "class_idx": 97,
+    "name": "로수바미브정 10/20mg",
+    "material_en": "Ezetimibe| Rosuvastatin Calcium",
+    "material_kr": "로수바스타틴칼슘|에제티미브",
+    "img_count": 180,
+    "priority": false
+  },
+  "K-022074": {
+    "class_idx": 98,
+    "name": "리피로우정 20mg",
+    "material_en": "Atorvastatin Calcium Anhydrous",
+    "material_kr": "무수아토르바스타틴칼슘",
+    "img_count": 174,
+    "priority": false
+  },
+  "K-033878": {
+    "class_idx": 99,
+    "name": "브린텔릭스정 20mg",
+    "material_en": "Vortioxetine Hydrobromide",
+    "material_kr": "보티옥세틴브롬화수소산염",
+    "img_count": 168,
+    "priority": false
+  }
+}
